@@ -11,7 +11,7 @@
 html,body,h1,h2,h3,h4,h5 {font-family: "RobotoDraft", "Roboto", sans-serif}
 .w3-bar-block .w3-bar-item {padding: 16px}
     /* Style for the truncated text */
-    .truncate-text {
+    td {
       max-width: 150px;
       white-space: nowrap;
       overflow: hidden;
@@ -21,7 +21,7 @@ html,body,h1,h2,h3,h4,h5 {font-family: "RobotoDraft", "Roboto", sans-serif}
     }
 
     /* Style for expanded text */
-    .truncate-text.expanded {
+    td.expanded {
       white-space: normal;
       overflow: visible;
     }
@@ -95,7 +95,7 @@ html,body,h1,h2,h3,h4,h5 {font-family: "RobotoDraft", "Roboto", sans-serif}
               <th>Status</th>
             </tr>
           </thead>
-          <tbody class="truncate-text" id="ticketsTable"></tbody>
+          <tbody id="ticketsTable"></tbody>
         </table>
 </div></div>
 <script>
@@ -147,7 +147,7 @@ openTab.click();
   <script src="script.js"></script>
   <script>
     // Add event listeners to toggle text display
-    document.querySelectorAll('.truncate-text').forEach((element) => {
+    document.querySelectorAll('td').forEach((element) => {
       element.addEventListener('click', (event) => {
         // Toggle expanded class on the clicked element
         element.classList.toggle('expanded');
@@ -156,7 +156,7 @@ openTab.click();
 
     // Revert to truncated text when clicking outside
     document.addEventListener('click', (event) => {
-      document.querySelectorAll('.truncate-text.expanded').forEach((element) => {
+      document.querySelectorAll('td.expanded').forEach((element) => {
         if (!element.contains(event.target)) {
           element.classList.remove('expanded');
         }
