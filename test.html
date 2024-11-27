@@ -10,26 +10,22 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"><style>
 html,body,h1,h2,h3,h4,h5 {font-family: "RobotoDraft", "Roboto", sans-serif}
 .w3-bar-block .w3-bar-item {padding: 16px}
-</style>
-  <style>
-    table {
-  border-collapse: collapse;
-  width: 100%;
-}
+    /* Style for the truncated text */
+    .truncate-text {
+      max-width: 150px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
 
-th, td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-td:hover {
-  white-space: normal;
-  overflow: visible;
-}
-    </style>
+    /* Style for expanded text */
+    .truncate-text.expanded {
+      white-space: normal;
+      overflow: visible;
+    }
+  </style>
 </head>
 <body>
 
@@ -99,7 +95,7 @@ td:hover {
               <th>Status</th>
             </tr>
           </thead>
-          <tbody id="ticketsTable"></tbody>
+          <tbody class="truncate-text" id="ticketsTable"></tbody>
         </table>
 </div></div>
 <script>
@@ -149,5 +145,23 @@ var openTab = document.getElementById("firstTab");
 openTab.click();
 </script>
   <script src="script.js"></script>
+  <script>
+    // Add event listeners to toggle text display
+    document.querySelectorAll('.truncate-text').forEach((element) => {
+      element.addEventListener('click', (event) => {
+        // Toggle expanded class on the clicked element
+        element.classList.toggle('expanded');
+      });
+    });
+
+    // Revert to truncated text when clicking outside
+    document.addEventListener('click', (event) => {
+      document.querySelectorAll('.truncate-text.expanded').forEach((element) => {
+        if (!element.contains(event.target)) {
+          element.classList.remove('expanded');
+        }
+      });
+    });
+  </script>
 </body>
 </html> 
