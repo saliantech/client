@@ -146,22 +146,25 @@ openTab.click();
 </script>
   <script src="script.js"></script>
   <script>
-    // Add event listeners to toggle text display
-    document.querySelectorAll('td').forEach((element) => {
-      element.addEventListener('click', (event) => {
-        // Toggle expanded class on the clicked element
-        element.classList.toggle('expanded');
-      });
-    });
+  // Add event listener to the <tbody> using event delegation
+  document.getElementById('ticketsTable').addEventListener('click', (event) => {
+    const element = event.target;
 
-    // Revert to truncated text when clicking outside
-    document.addEventListener('click', (event) => {
-      document.querySelectorAll('td.expanded').forEach((element) => {
-        if (!element.contains(event.target)) {
-          element.classList.remove('expanded');
-        }
-      });
+    // Check if the clicked element is a <td>
+    if (element.tagName === 'TD') {
+      // Toggle the expanded class
+      element.classList.toggle('expanded');
+    }
+  });
+
+  // Revert to truncated text when clicking outside
+  document.addEventListener('click', (event) => {
+    document.querySelectorAll('#ticketsTable td.expanded').forEach((element) => {
+      if (!element.contains(event.target)) {
+        element.classList.remove('expanded');
+      }
     });
+  });
   </script>
 </body>
 </html> 
