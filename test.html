@@ -141,30 +141,25 @@ function openMail(personName) {
 </script>
 
 <script>
-var openTab = document.getElementById("firstTab");
-openTab.click();
-</script>
-  <script src="script.js"></script>
-  <script>
-  // Add event listener to the <tbody> using event delegation
-  document.getElementById('ticketsTable').addEventListener('click', (event) => {
-    const element = event.target;
+ // Use event delegation for toggling expanded/collapsed text
+    ticketsTable.addEventListener('click', (event) => {
+      const element = event.target;
 
-    // Check if the clicked element is a <td>
-    if (element.tagName === 'TD') {
-      // Toggle the expanded class
-      element.classList.toggle('expanded');
-    }
-  });
-
-  // Revert to truncated text when clicking outside
-  document.addEventListener('click', (event) => {
-    document.querySelectorAll('#ticketsTable td.expanded').forEach((element) => {
-      if (!element.contains(event.target)) {
-        element.classList.remove('expanded');
+      // Check if the clicked element is a <td>
+      if (element.tagName === 'TD') {
+        // Toggle the expanded class
+        element.classList.toggle('expanded');
       }
     });
-  });
+
+    // Revert to truncated text when clicking outside
+    document.addEventListener('click', (event) => {
+      document.querySelectorAll('#ticketsTable td.expanded').forEach((element) => {
+        if (!element.contains(event.target)) {
+          element.classList.remove('expanded');
+        }
+      });
+    });
   </script>
 </body>
 </html> 
