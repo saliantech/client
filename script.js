@@ -1,28 +1,8 @@
-// Utility to show loading effect
-function showLoading(show) {
-  const loadingElement = document.getElementById('loading');
-  loadingElement.style.display = show ? 'block' : 'none';
-}
-
-// Utility to show a popup message
-function showPopupMessage(message, type = 'success') {
-  const popup = document.getElementById('popupMessage');
-  popup.textContent = message;
-  popup.className = `popup-message ${type}`;
-  popup.style.display = 'block';
-  setTimeout(() => {
-    popup.style.opacity = '0';
-    setTimeout(() => {
-      popup.style.display = 'none';
-      popup.style.opacity = '1';
-    }, 1000);
-  }, 3000);
-}
+const scriptURL = 'https://script.google.com/macros/s/AKfycbyaxChhZtB5h5UhVRXOzB55VochpvYFVJ_kKU20eOxjAOWPaA3qrOUz_01EhfCBlRI9pQ/exec';
 
 // Handle login form submission
 document.getElementById('loginForm')?.addEventListener('submit', async function (e) {
   e.preventDefault();
-  showLoading(true);
   const username = document.getElementById('username').value;
   const password = document.getElementById('password').value;
 
@@ -31,7 +11,6 @@ document.getElementById('loginForm')?.addEventListener('submit', async function 
     body: JSON.stringify({ action: 'login', username, password }),
   });
   const result = await response.json();
-  showLoading(false);
 
   if (result.status === 'success') {
     localStorage.setItem('username', username);
@@ -39,14 +18,13 @@ document.getElementById('loginForm')?.addEventListener('submit', async function 
     localStorage.setItem('email', result.email);
     window.location.href = 'main.html';
   } else {
-    showPopupMessage(result.message, 'error');
+    document.getElementById('loginMessage').textContent = result.message;
   }
 });
 
 // Handle registration form submission
 document.getElementById('registerForm')?.addEventListener('submit', async function (e) {
   e.preventDefault();
-  showLoading(true);
   const username = document.getElementById('regUsername').value;
   const password = document.getElementById('regPassword').value;
   const clientName = document.getElementById('clientName').value;
@@ -63,18 +41,63 @@ document.getElementById('registerForm')?.addEventListener('submit', async functi
     }),
   });
   const result = await response.json();
-  showLoading(false);
-  showPopupMessage(result.message, result.status === 'success' ? 'success' : 'error');
+
+  document.getElementById('registerMessage').textContent = result.message;
 
   if (result.status === 'success') {
     setTimeout(() => (window.location.href = 'index.html'), 2000);
   }
 });
 
+// Populate main page data
+document.addEventListener('DOMContentLoaded', async function () {
+  const username = localStorage.getItem('username');
+  const clientName = localStorage.getItem('clientName');
+  const email = localStorage.getItem('email');
+
+  if (document.getElementById('clientName')) {
+    document.getElementById('clientName').textContent = clientName;
+    document.getElementById('clientEmail').textContent = email;
+    document.getElementById('profileName').textContent = clientName;
+    document.getElementById('profileEmail').textContent = email;
+
+    const ticketsResponse = await fetch(scriptURL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'fetchTickets', username }),
+    });
+    const tickets = await ticketsResponse.json();
+
+    const ticketsTable = document.getElementById('ticketsTable');
+    tickets.forEach(ticket => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${ticket[0]}</td>
+        <td>${ticket[2]}</td>
+        <td>${ticket[3]}</td>
+        <td>${ticket[4]}</td>
+      `;
+      ticketsTable.appendChild(row);
+    });
+  }
+
+  // Tab switching logic
+  const tabs = document.querySelectorAll('.tab');
+  const tabContents = document.querySelectorAll('.tab-content');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      tabContents.forEach(content => content.classList.remove('active'));
+      document.getElementById(tab.getAttribute('data-tab')).classList.add('active');
+    });
+  });
+});
+
 // Handle ticket creation
 document.getElementById('createTicketForm')?.addEventListener('submit', async function (e) {
   e.preventDefault();
-  showLoading(true);
   const username = localStorage.getItem('username');
   const subject = document.getElementById('subject').value;
   const description = document.getElementById('description').value;
@@ -84,12 +107,11 @@ document.getElementById('createTicketForm')?.addEventListener('submit', async fu
     body: JSON.stringify({ action: 'createTicket', username, subject, description }),
   });
   const result = await response.json();
-  showLoading(false);
-  showPopupMessage(
-    result.status === 'success' ? 'Ticket created successfully' : 'Error creating ticket',
-    result.status === 'success' ? 'success' : 'error'
-  );
+
   if (result.status === 'success') {
-    setTimeout(() => location.reload(), 2000);
+    alert('Ticket created successfully');
+    location.reload();
+  } else {
+    alert('Error creating ticket');
   }
 });
