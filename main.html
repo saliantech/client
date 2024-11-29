@@ -93,6 +93,16 @@
   </style>
 </head>
 <body>
+  <script>
+    // Check if the user is logged in by verifying email in localStorage
+    const email = localStorage.getItem("email");
+
+    if (!email) {
+        // If no email is found, redirect to the login page (index.html)
+        alert("You must be logged in to access this page.");
+        window.location.href = "index.html";
+    }
+</script>
   <div class="container">
     <h2>Welcome, <span id="clientName"></span></h2>
     <p>Email: <span id="clientEmail"></span></p>
