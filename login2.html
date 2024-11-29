@@ -1,50 +1,226 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login</title>
-  <link rel="stylesheet" href="style2.css">
-</head>
-<body>
-  <div class="container">
-    <h2>Login</h2>
-    <form id="loginForm">
-      <label for="email">Email</label>
-      <input type="email" id="email" placeholder="Enter Email" required>
-      
-      <label for="password">Password</label>
-      <input type="password" id="password" placeholder="Enter Password" required>
-      
-      <button type="button" onclick="loginUser()">Login</button>
-    </form>
-    <p>Don't have an account? <a href="register2.html">Register here</a></p>
-  </div>
-  
-  <script>
-    async function loginUser() {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-      const response = await fetch("https://script.google.com/macros/s/AKfycbwSWYsHeE9Q1rxjRnhSQp152IDEO3VWlCmKD3tNY38JMPqDvLjWTxEfn2031M9-ZyceuA/exec", {
-        method: "POST",
-        body: JSON.stringify({
-          action: "login",
-          email,
-          password
-        }),
-      });
+        <!-- ===== CSS ===== -->
+        <link rel="stylesheet" href="assets/css/styles.css">
+    
+        <!-- ===== BOX ICONS ===== -->
+        <link href='https://cdn.jsdelivr.net/npm/boxicons@2.0.5/css/boxicons.min.css' rel='stylesheet'>
 
-      const result = await response.json();
-      if (result.status === "success") {
-        alert("Welcome, " + result.username);
-        localStorage.setItem("username", result.username);
-        localStorage.setItem("email", result.email);
-        window.location.href = "test2.html";
-      } else {
-        alert(result.message);
+        <title>Responsive Login Form Sign In Sign Up</title>
+        <style>
+            /* Loader styles */
+            #loading {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                display: none;
+            }
+            #loading div {
+                border: 4px solid #f3f3f3;
+                border-top: 3px solid #8A2BE2;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                animation: spin 1s linear infinite;
+            }
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+      /* Popup message style */
+.popup-msg {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    background-color: #8A2BE2;
+    color: white;
+    border-radius: 5px;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 9999;
+}
+
+/* Fade in effect */
+.popup-msg.show {
+    display: block;
+    opacity: 50%;
+}
+
+        </style>
+    </head>
+    <body>
+        <!-- Loading effect -->
+        <div id="loading">
+            <div></div>
+        </div>
+
+        <div class="login">
+            <div class="login__content">
+                <div class="login__img">
+                    <img src="assets/img/img-login.svg" alt="">
+                </div>
+
+                <div class="login__forms">
+                  <div class="popup-msg" id="popupMsg"></div>
+                    <form class="login__registre" id="login-in">
+                        <h1 class="login__title">Sign In</h1>
+                          <div class="login__box">
+                            <i class='bx bx-at login__icon'></i>
+                            <input type="email" id="email" placeholder="Email" class="login__input" required>
+                        </div>
+    
+                        <div class="login__box">
+                            <i class='bx bx-lock-alt login__icon'></i>
+                            <input type="password" id="password" placeholder="Password" class="login__input" required>
+                        </div>
+
+                        <a href="#" class="login__forgot">Forgot password?</a>
+
+                        <a onclick="loginUser()" class="login__button">Sign In</a>
+                        <div>
+                            <span class="login__account">Dont have an Account ?</span>
+                            <span class="login__signin" id="sign-up">Sign Up</span>
+                        </div>
+                    </form>
+                    <form action="" class="login__create none" id="login-up">
+                        <h1 class="login__title">Create Account</h1>
+    
+                        <div class="login__box">
+                            <i class='bx bx-user login__icon'></i>
+                            <input type="text" id="r_username" placeholder="Username" class="login__input">
+                        </div>
+    
+                        <div class="login__box">
+                            <i class='bx bx-at login__icon'></i>
+                            <input type="email" id="r_email" placeholder="Email" class="login__input">
+                        </div>
+
+                        <div class="login__box">
+                            <i class='bx bx-lock-alt login__icon'></i>
+                            <input type="password" id="r_password" placeholder="Password" class="login__input">
+                        </div>
+
+                        <a onclick="registerUser()" class="login__button">Sign Up</a>
+
+                        <div>
+                            <span class="login__account">Already have an Account ?</span>
+                            <span class="login__signup" id="sign-in">Sign In</span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!--===== MAIN JS =====-->
+        <script>
+            /*===== LOGIN SHOW and HIDDEN =====*/
+            const signUp = document.getElementById('sign-up'),
+                  signIn = document.getElementById('sign-in'),
+                  loginIn = document.getElementById('login-in'),
+                  loginUp = document.getElementById('login-up'),
+                  loading = document.getElementById('loading');
+
+            signUp.addEventListener('click', () => {
+                loginIn.classList.remove('block');
+                loginUp.classList.remove('none');
+                loginIn.classList.toggle('none');
+                loginUp.classList.toggle('block');
+            });
+
+            signIn.addEventListener('click', () => {
+                loginIn.classList.remove('none');
+                loginUp.classList.remove('block');
+                loginIn.classList.toggle('block');
+                loginUp.classList.toggle('none');
+            });
+      function log_in() {
+        loginIn.classList.remove('none');
+                loginUp.classList.remove('block');
+                loginIn.classList.toggle('block');
+                loginUp.classList.toggle('none');
       }
-    }
-  </script>
-</body>
+
+            async function registerUser() {
+                showLoading();
+                const username = document.getElementById("r_username").value;
+                const email = document.getElementById("r_email").value;
+                const password = document.getElementById("r_password").value;
+
+                const response = await fetch("https://script.google.com/macros/s/AKfycbwSWYsHeE9Q1rxjRnhSQp152IDEO3VWlCmKD3tNY38JMPqDvLjWTxEfn2031M9-ZyceuA/exec", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        action: "register",
+                        username,
+                        email,
+                        password
+                    }),
+                });
+
+                const result = await response.json();
+                showPopupMessage(result.message);
+                hideLoading();
+                if (result.status === "success") {
+                 log_in();
+                }
+            }
+
+            async function loginUser() {
+                showLoading();
+                const email = document.getElementById("email").value;
+                const password = document.getElementById("password").value;
+
+                const response = await fetch("https://script.google.com/macros/s/AKfycbwSWYsHeE9Q1rxjRnhSQp152IDEO3VWlCmKD3tNY38JMPqDvLjWTxEfn2031M9-ZyceuA/exec", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        action: "login",
+                        email,
+                        password
+                    }),
+                });
+
+                const result = await response.json();
+                hideLoading();
+                if (result.status === "success") {
+                    alert("Welcome, " + result.username);
+                    localStorage.setItem("username", result.username);
+                    localStorage.setItem("email", result.email);
+                    window.location.href = "index.html";
+                } else {
+                    showPopupMessage(result.message);
+                }
+            }
+
+            function showLoading() {
+                loading.style.display = "flex";
+            }
+
+            function hideLoading() {
+                loading.style.display = "none";
+            }
+      
+ function showPopupMessage(message) {
+    popupMsg.textContent = message;
+    popupMsg.classList.add('show');
+
+    // Hide after 3 seconds
+    setTimeout(() => {
+        popupMsg.classList.remove('show');
+    }, 3000);
+}
+        </script>
+    </body>
 </html>
