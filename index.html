@@ -195,10 +195,10 @@
                 const result = await response.json();
                 hideLoading();
                 if (result.status === "success") {
-                    alert("Welcome, " + result.username);
+                    showPopupMessage(result.message);
                     localStorage.setItem("username", result.username);
                     localStorage.setItem("email", result.email);
-                    window.location.href = "index.html";
+                    window.location.href = "test2.html";
                 } else {
                     showPopupMessage(result.message);
                 }
