@@ -30,7 +30,9 @@ function createTicket() {
     if (username && email) {
       document.getElementById("usernameDisplay").textContent = `${username}`;
       document.getElementById("user-name").textContent = `${username}`;
-      fetchTickets();
+       document.getElementById("user-email").textContent = `${email}`;
+     document.getElementById("emailDisplay").textContent = `${email}`;
+   fetchTickets();
     }
 
 async function fetchTickets() {
@@ -45,11 +47,12 @@ async function fetchTickets() {
   const result = await response.json();
   const tableBody = document.getElementById("ticketTable");
   result.tickets.forEach(ticket => {
-    const formattedDate = formatDate(ticket[3]); // Assuming ticket[3] is the due date
-    const row = `<tr>
+    const formattedDate = formatDate(ticket[3]); // Format the date
+    const isBlinking = isDateNearExpiry(ticket[3]); // Check if near expiry
+ const row = `<tr>
       <td>${ticket[0]}</td>
       <td>${ticket[2]}</td>
-      <td>${formattedDate}</td>
+      <td class="${isBlinking ? "blinking" : ""}">${formattedDate}</td>
       <td>${ticket[5]}</td>
      <td data-status="${ticket[6].toLowerCase()}">${ticket[6]}</td>
      </tr>`;
@@ -63,6 +66,13 @@ function formatDate(dateString) {
   const month = months[date.getMonth()];
   const year = date.getFullYear();
   return `${day}-${month}-${year}`;
+}
+function isDateNearExpiry(dateString) {
+  const today = new Date();
+  const dueDate = new Date(dateString);
+  const timeDifference = dueDate - today; // Time difference in milliseconds
+  const daysDifference = timeDifference / (1000 * 60 * 60 * 24); // Convert to days
+  return daysDifference <= 2 && daysDifference >= 0; // Check if within 2 days
 }
 
     async function createTicket() {
