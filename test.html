@@ -76,10 +76,18 @@ html,body,h1,h2,h3,h4,h5 {font-family: "RobotoDraft", "Roboto", sans-serif}
   color: #0056b3; /* Matches the header color */
 }
 /* Styling based on data-status attribute */
-td[data-status="pending"] {
+/* Change "Open" to "Pending" visually */
+td[data-status="open"]::before {
+  content: "Pending";
   color: #ff9800; /* Orange for Pending */
   font-weight: bold;
 }
+
+/* Hide the original text */
+td[data-status="open"] {
+  color: transparent;
+}
+
 
 td[data-status="accepted"] {
   color: #4caf50; /* Green for Accepted */
@@ -94,6 +102,23 @@ td[data-status="on process"] {
 td[data-status="rejected"] {
   color: #f44336; /* Red for Rejected */
   font-weight: bold;
+}
+/* Blinking animation */
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+    color: red; /* Explicitly set red here */
+  }
+  50% {
+    opacity: 0;
+    color: red; /* Ensure red is retained even when blinking */
+  }
+}
+
+.blinking {
+  animation: blink 1s infinite;
+  font-weight: bold;
+  color: red; /* Initial red color */
 }
 
   </style>
@@ -142,7 +167,7 @@ td[data-status="rejected"] {
       <h2>Profile</h2>
     </div>
       <h3>Client Name: <span id="usernameDisplay"></span></h3>
-      <h3>Email: <span id="email"></span></h3>
+      <h3>Email: <span id="user-email"></span></h3>
  </div>    
     </div>
   </div>
@@ -159,7 +184,7 @@ td[data-status="rejected"] {
       <h1>Hello, <span id="user-name"></span></h1>
   <div class="tab-pane fade show active" id="tickets">
                <h3>Your Tickets</h3>
-    <p>Email: <span id="email"></span></p>
+    <p>Email: <span id="emailDisplay"></span></p>
         <table class="table table-container table-bordered">
         <thead>
           <tr>
