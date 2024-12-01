@@ -1,117 +1,107 @@
-const scriptURL = 'https://script.google.com/macros/s/AKfycbyaxChhZtB5h5UhVRXOzB55VochpvYFVJ_kKU20eOxjAOWPaA3qrOUz_01EhfCBlRI9pQ/exec';
+function logout() {
+  alert("Logged out successfully!");
+  // Redirect to login page or implement logout logic
+}
 
-// Handle login form submission
-document.getElementById('loginForm')?.addEventListener('submit', async function (e) {
-  e.preventDefault();
-  const username = document.getElementById('username').value;
-  const password = document.getElementById('password').value;
+function openAddTicketPopup() {
+  document.getElementById("ticketModal").style.display = "block";
+}
 
-  const response = await fetch(scriptURL, {
-    method: 'POST',
-    body: JSON.stringify({ action: 'login', username, password }),
-  });
-  const result = await response.json();
+function closeAddTicketPopup() {
+  document.getElementById("ticketModal").style.display = "none";
+}
 
-  if (result.status === 'success') {
-    localStorage.setItem('username', username);
-    localStorage.setItem('clientName', result.clientName);
-    localStorage.setItem('email', result.email);
-    window.location.href = 'main.html';
+function createTicket() {
+  const type = document.getElementById("type").value;
+  const dueDate = document.getElementById("dueDate").value;
+  const fileUrl = document.getElementById("fileUrl").value;
+  const description = document.getElementById("description").value;
+
+  if (type && dueDate && fileUrl && description) {
+    alert("Ticket Created Successfully!");
+    closeAddTicketPopup();
   } else {
-    document.getElementById('loginMessage').textContent = result.message;
+    alert("Please fill in all fields.");
   }
-});
+}
+   // Display user info or intro
+    const username = localStorage.getItem("username");
+    const email = localStorage.getItem("email");
+    if (username && email) {
+      document.getElementById("usernameDisplay").textContent = `${username}`;
+      document.getElementById("user-name").textContent = `${username}`;
+      fetchTickets();
+    }
 
-// Handle registration form submission
-document.getElementById('registerForm')?.addEventListener('submit', async function (e) {
-  e.preventDefault();
-  const username = document.getElementById('regUsername').value;
-  const password = document.getElementById('regPassword').value;
-  const clientName = document.getElementById('clientName').value;
-  const email = document.getElementById('email').value;
-
-  const response = await fetch(scriptURL, {
-    method: 'POST',
+async function fetchTickets() {
+  const response = await fetch("https://script.google.com/macros/s/AKfycbwSWYsHeE9Q1rxjRnhSQp152IDEO3VWlCmKD3tNY38JMPqDvLjWTxEfn2031M9-ZyceuA/exec", {
+    method: "POST",
     body: JSON.stringify({
-      action: 'register',
-      username,
-      password,
-      clientName,
-      email,
+      action: "fetchTickets",
+      email
     }),
   });
+
   const result = await response.json();
-
-  document.getElementById('registerMessage').textContent = result.message;
-
-  if (result.status === 'success') {
-    setTimeout(() => (window.location.href = 'index.html'), 2000);
-  }
-});
-
-// Populate main page data
-document.addEventListener('DOMContentLoaded', async function () {
-  const username = localStorage.getItem('username');
-  const clientName = localStorage.getItem('clientName');
-  const email = localStorage.getItem('email');
-
-  if (document.getElementById('clientName')) {
-    document.getElementById('clientName').textContent = clientName;
-    document.getElementById('clientEmail').textContent = email;
-    document.getElementById('profileName').textContent = clientName;
-    document.getElementById('profileEmail').textContent = email;
-
-    const ticketsResponse = await fetch(scriptURL, {
-      method: 'POST',
-      body: JSON.stringify({ action: 'fetchTickets', username }),
-    });
-    const tickets = await ticketsResponse.json();
-
-    const ticketsTable = document.getElementById('ticketsTable');
-    tickets.forEach(ticket => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${ticket[0]}</td>
-        <td>${ticket[2]}</td>
-        <td>${ticket[3]}</td>
-        <td>${ticket[4]}</td>
-      `;
-      ticketsTable.appendChild(row);
-    });
-  }
-
-  // Tab switching logic
-  const tabs = document.querySelectorAll('.tab');
-  const tabContents = document.querySelectorAll('.tab-content');
-
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-
-      tabContents.forEach(content => content.classList.remove('active'));
-      document.getElementById(tab.getAttribute('data-tab')).classList.add('active');
-    });
+  const tableBody = document.getElementById("ticketTable");
+  result.tickets.forEach(ticket => {
+    const formattedDate = formatDate(ticket[3]); // Assuming ticket[3] is the due date
+    const row = `<tr>
+      <td>${ticket[0]}</td>
+      <td>${ticket[2]}</td>
+      <td>${formattedDate}</td>
+      <td>${ticket[5]}</td>
+     <td data-status="${ticket[6].toLowerCase()}">${ticket[6]}</td>
+     </tr>`;
+    tableBody.insertAdjacentHTML("beforeend", row);
   });
-});
+}
+function formatDate(dateString) {
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const date = new Date(dateString);
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = months[date.getMonth()];
+  const year = date.getFullYear();
+  return `${day}-${month}-${year}`;
+}
 
-// Handle ticket creation
-document.getElementById('createTicketForm')?.addEventListener('submit', async function (e) {
-  e.preventDefault();
-  const username = localStorage.getItem('username');
-  const subject = document.getElementById('subject').value;
-  const description = document.getElementById('description').value;
+    async function createTicket() {
+      const type = document.getElementById("type").value;
+      const dueDate = document.getElementById("dueDate").value;
+      const fileUrl = document.getElementById("fileUrl").value;
+      const description = document.getElementById("description").value;
 
-  const response = await fetch(scriptURL, {
-    method: 'POST',
-    body: JSON.stringify({ action: 'createTicket', username, subject, description }),
-  });
-  const result = await response.json();
+      const response = await fetch("https://script.google.com/macros/s/AKfycbwSWYsHeE9Q1rxjRnhSQp152IDEO3VWlCmKD3tNY38JMPqDvLjWTxEfn2031M9-ZyceuA/exec", {
+        method: "POST",
+        body: JSON.stringify({
+          action: "createTicket",
+          email,
+          type,
+          dueDate,
+          fileUrl,
+          description
+        }),
+      });
 
-  if (result.status === 'success') {
-    alert('Ticket created successfully');
-    location.reload();
-  } else {
-    alert('Error creating ticket');
+      const result = await response.json();
+      alert(result.message);
+      if (result.status === "success") {
+        location.reload();
+      }
+    }
+
+// Function to determine the CSS class based on status
+function getStatusClass(status) {
+  switch (status.toLowerCase()) {
+    case "pending":
+      return "status-pending";
+    case "accepted":
+      return "status-accepted";
+    case "on process":
+      return "status-on-process";
+    case "rejected":
+      return "status-rejected";
+    default:
+      return ""; // Default class for unknown status
   }
-});
+}
