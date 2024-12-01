@@ -11,8 +11,8 @@
 html,body,h1,h2,h3,h4,h5 {font-family: "RobotoDraft", "Roboto", sans-serif}
 .w3-bar-block .w3-bar-item {padding: 16px}
     /* Style for the truncated text */
-    td {
-      max-width: 150px;
+  td {
+      max-width: 100px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -25,6 +25,77 @@ html,body,h1,h2,h3,h4,h5 {font-family: "RobotoDraft", "Roboto", sans-serif}
       white-space: normal;
       overflow: visible;
     }
+  tr:nth-child(even) {background-color: #f2f2f2;}
+  
+/* Table container with rounded edges */
+.table-container {
+  overflow: hidden; /* Ensures rounded corners apply to all content */
+  border-radius: 12px; /* Adjust for the desired roundness */
+  border: 1px solid #ddd; /* Subtle border for the table */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional shadow for elegance */
+  background-color: #fff; /* Background color for better contrast */
+}
+
+/* Table styling */
+.table-container table {
+  width: 100%;
+  border-collapse: collapse; /* Prevents double borders */
+}
+
+/* Header row styling */
+.table-container th {
+  background-color: #0056b3; /* Professional heading color (blue) */
+  color: #ffffff; /* White text for contrast */
+  font-weight: 600; /* Slightly bold font */
+  padding: 12px 15px;
+  text-align: left;
+  text-transform: uppercase; /* Optional: Makes the header text uppercase */
+}
+
+/* Data cell styling */
+.table-container td {
+  padding: 10px 15px;
+  border-bottom: 1px solid #ddd; /* Subtle separator for rows */
+  color: #333; /* Darker text for readability */
+}
+
+/* Alternating row colors for readability */
+.table-container tr:nth-child(even) {
+  background-color: #f9f9f9; /* Light gray for even rows */
+}
+
+/* Row hover effect */
+.table-container tr:hover {
+  background-color: #f1f5f9; /* Slightly darker hover effect */
+  transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+/* Optional: Style for the first column */
+.table-container td:first-child {
+  font-weight: 500; /* Slightly bold */
+  color: #0056b3; /* Matches the header color */
+}
+/* Styling based on data-status attribute */
+td[data-status="pending"] {
+  color: #ff9800; /* Orange for Pending */
+  font-weight: bold;
+}
+
+td[data-status="accepted"] {
+  color: #4caf50; /* Green for Accepted */
+  font-weight: bold;
+}
+
+td[data-status="on process"] {
+  color: #2196f3; /* Blue for On Process */
+  font-weight: bold;
+}
+
+td[data-status="rejected"] {
+  color: #f44336; /* Red for Rejected */
+  font-weight: bold;
+}
+
   </style>
 </head>
 <body>
@@ -48,13 +119,16 @@ html,body,h1,h2,h3,h4,h5 {font-family: "RobotoDraft", "Roboto", sans-serif}
        class="w3-button w3-red w3-right w3-xxlarge"><i class="fa fa-remove"></i></span>
       <h2>New Ticket</h2>
     </div>
-<form id="createTicketForm">
+<form id="ticketForm">
     <div class="w3-panel">
-    <input type="text" id="subject" class="w3-input w3-border w3-margin-bottom" placeholder="Subject" required>
-    <textarea id="description" class="w3-input w3-border w3-margin-bottom" style="height:150px" placeholder="Description" required></textarea>
+    <input type="text" id="type" class="w3-input w3-border w3-margin-bottom" placeholder="Type of Edit" required>
+        <input type="date" id="dueDate" class="w3-input w3-border w3-margin-bottom" required>
+        <input type="url" id="fileUrl" class="w3-input w3-border w3-margin-bottom" placeholder="Paste Your File link" required>
+      <textarea id="description" class="w3-input w3-border w3-margin-bottom" style="height:150px" placeholder="Description" required></textarea>
       <div class="w3-section">
         <a class="w3-button w3-red" onclick="document.getElementById('id01').style.display='none'">Cancel  <i class="fa fa-remove"></i></a>
-        <button type="submit" class="w3-button w3-light-grey w3-right">Add</button> 
+        <button type="submit" onclick="createTicket()" class="w3-button w3-light-grey w3-right">Add</button>
+      </form>
       </div>    
     </div>
   </div>
@@ -67,8 +141,8 @@ html,body,h1,h2,h3,h4,h5 {font-family: "RobotoDraft", "Roboto", sans-serif}
        class="w3-button w3-red w3-right w3-xxlarge"><i class="fa fa-remove"></i></span>
       <h2>Profile</h2>
     </div>
-      <h3>Client Name: <span id="profileName"></span></h3>
-      <h3>Email: <span id="profileEmail"></span></h3>
+      <h3>Client Name: <span id="usernameDisplay"></span></h3>
+      <h3>Email: <span id="email"></span></h3>
  </div>    
     </div>
   </div>
@@ -82,21 +156,23 @@ html,body,h1,h2,h3,h4,h5 {font-family: "RobotoDraft", "Roboto", sans-serif}
  <a href="javascript:void(0)" class="w3-hide-large w3-red w3-button w3-right w3-margin-top w3-margin-right" onclick="document.getElementById('id01').style.display='block'"><i class="fa fa-pencil"></i></a>
  <a href="javascript:void(0)" class="w3-hide-large w3-red w3-button w3-right w3-margin-top w3-margin-right" onclick="document.getElementById('id02').style.display='block'"><i class="fa fa-user"></i></a>
 <div id="Borge" class="w3-container person">
-      <h1>Hello, <span id="clientName"></span></h1>
+      <h1>Hello, <span id="user-name"></span></h1>
   <div class="tab-pane fade show active" id="tickets">
                <h3>Your Tickets</h3>
-    <p>Email: <span id="clientEmail"></span></p>
-        <table class="table table-bordered">
-          <thead>
-            <tr>
-              <th>Ticket ID</th>
-              <th>Subject</th>
-              <th>Description</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="ticketsTable"></tbody>
-        </table>
+    <p>Email: <span id="email"></span></p>
+        <table class="table table-container table-bordered">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Type</th>
+            <th>Due Date</th>
+            <th>Discription</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="ticketTable"></tbody>
+    </table>
+    
 </div></div>
 <script>
 var openInbox = document.getElementById("myBtn");
@@ -142,7 +218,7 @@ function openMail(personName) {
   <script src="script.js"></script>
 <script>
  // Use event delegation for toggling expanded/collapsed text
-    ticketsTable.addEventListener('click', (event) => {
+    ticketTable.addEventListener('click', (event) => {
       const element = event.target;
 
       // Check if the clicked element is a <td>
@@ -154,7 +230,7 @@ function openMail(personName) {
 
     // Revert to truncated text when clicking outside
     document.addEventListener('click', (event) => {
-      document.querySelectorAll('#ticketsTable td.expanded').forEach((element) => {
+      document.querySelectorAll('#ticketTable td.expanded').forEach((element) => {
         if (!element.contains(event.target)) {
           element.classList.remove('expanded');
         }
