@@ -135,30 +135,32 @@ td[data-status="rejected"] {
   <a href="#" class="w3-bar-item w3-button"><i class="fa fa-hourglass-end w3-margin-right"></i>Drafts</a>
   <a href="main.html" class="w3-bar-item w3-button"><i class="fa fa-trash w3-margin-right"></i>Back</a>
 </nav>
-
-<!-- Modal that pops up when you click on "New Message" -->
+<!-- Modal for "New Message" -->
 <div id="id01" class="w3-modal" style="z-index:4">
   <div class="w3-modal-content w3-animate-zoom">
     <div class="w3-container w3-padding w3-red">
-       <span onclick="document.getElementById('id01').style.display='none'"
-       class="w3-button w3-red w3-right w3-xxlarge"><i class="fa fa-remove"></i></span>
+      <span onclick="document.getElementById('id01').style.display='none'" class="w3-button w3-red w3-right w3-xxlarge">
+        <i class="fa fa-remove"></i>
+      </span>
       <h2>New Ticket</h2>
     </div>
-<form id="ticketForm">
-    <div class="w3-panel">
-    <input type="text" id="type" class="w3-input w3-border w3-margin-bottom" placeholder="Type of Edit" required>
+    <form id="ticketForm" onsubmit="return createTicket(event)">
+      <div class="w3-panel">
+        <input type="text" id="type" class="w3-input w3-border w3-margin-bottom" placeholder="Type of Edit" required>
         <input type="date" id="dueDate" class="w3-input w3-border w3-margin-bottom" required>
-        <input type="url" id="fileUrl" class="w3-input w3-border w3-margin-bottom" placeholder="Paste Your File link" required>
-      <textarea id="description" class="w3-input w3-border w3-margin-bottom" style="height:150px" placeholder="Description" required></textarea>
-      <div class="w3-section">
-        <a class="w3-button w3-red" onclick="document.getElementById('id01').style.display='none'">Cancel  <i class="fa fa-remove"></i></a>
-        <button type="submit" onclick="createTicket()" class="w3-button w3-light-grey w3-right">Add</button>
-      </form>
-      </div>    
-    </div>
+        <input type="url" id="fileUrl" class="w3-input w3-border w3-margin-bottom" placeholder="Paste Your File Link" required>
+        <textarea id="description" class="w3-input w3-border w3-margin-bottom" style="height:150px" placeholder="Description" required></textarea>
+        <div class="w3-section">
+          <button type="button" class="w3-button w3-red" onclick="document.getElementById('id01').style.display='none'">
+            Cancel <i class="fa fa-remove"></i>
+          </button>
+          <button type="submit" class="w3-button w3-light-grey w3-right">Add</button>
+        </div>
+      </div>
+    </form>
   </div>
 </div>
-
+    
   <div id="id02" class="w3-modal" style="z-index:4">
   <div class="w3-modal-content w3-animate-zoom">
     <div class="w3-container w3-padding w3-red">
