@@ -79,31 +79,43 @@ async function createTicket(event) {
 
   return false; // Prevent default form submission
 }
-
 async function fetchTickets() {
-  const response = await fetch("https://script.google.com/macros/s/AKfycbwSWYsHeE9Q1rxjRnhSQp152IDEO3VWlCmKD3tNY38JMPqDvLjWTxEfn2031M9-ZyceuA/exec", {
-    method: "POST",
-    body: JSON.stringify({
-      action: "fetchTickets",
-      email
-    }),
-  });
+  try {
+    const response = await fetch("https://script.google.com/macros/s/AKfycbwSWYsHeE9Q1rxjRnhSQp152IDEO3VWlCmKD3tNY38JMPqDvLjWTxEfn2031M9-ZyceuA/exec?action=getTickets");
+    const tickets = await response.json();
 
-  const result = await response.json();
-  const tableBody = document.getElementById("ticketTable");
-  result.tickets.forEach(ticket => {
-    const formattedDate = formatDate(ticket[3]); // Format the date
-    const isBlinking = isDateNearExpiry(ticket[3]); // Check if near expiry
- const row = `<tr>
-      <td>${ticket[0]}</td>
-      <td>${ticket[2]}</td>
-      <td class="${isBlinking ? "blinking" : ""}">${formattedDate}</td>
-      <td>${ticket[5]}</td>
-     <td data-status="${ticket[6].toLowerCase()}">${ticket[6]}</td>
-     </tr>`;
-    tableBody.insertAdjacentHTML("beforeend", row);
-  });
+    const ticketTable = document.getElementById("ticketTable");
+    ticketTable.innerHTML = ""; // Clear table rows
+
+    tickets.forEach((ticket) => {
+      const row = document.createElement("tr");
+
+      const dueDate = new Date(ticket.dueDate);
+      const today = new Date();
+      const isEditable = (dueDate - today) / (1000 * 60 * 60 * 24) >= 5;
+
+      row.innerHTML = `
+        <td>${ticket.id}</td>
+        <td>${ticket.type}</td>
+        <td>${ticket.dueDate}</td>
+        <td>${ticket.description}</td>
+        <td>${ticket.status}</td>
+        <td>
+          <button class="btn btn-warning" onclick="openEditModal(${ticket.id}, '${ticket.type}', '${ticket.dueDate}', '${ticket.description}', ${isEditable})">
+            <i class="fa fa-edit"></i>
+          </button>
+          <button class="btn btn-danger" onclick="deleteTicket(${ticket.id})">
+            <i class="fa fa-trash"></i>
+          </button>
+        </td>
+      `;
+      ticketTable.appendChild(row);
+    });
+  } catch (error) {
+    console.error("Error fetching tickets:", error);
+  }
 }
+
 function formatDate(dateString) {
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const date = new Date(dateString);
