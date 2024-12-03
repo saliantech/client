@@ -22,7 +22,17 @@ function doPost(e) {
       return ContentService.createTextOutput(
         JSON.stringify(createTicket(data.email, data.type, data.dueDate, data.fileUrl, data.description))
       ).setMimeType(ContentService.MimeType.JSON);
-      
+
+      case "updateTicket":
+      return ContentService.createTextOutput(
+        JSON.stringify(updateTicket(data))
+      ).setMimeType(ContentService.MimeType.JSON);
+
+    case "deleteTicket":
+      return ContentService.createTextOutput(
+        JSON.stringify(deleteTicket(data.id))
+      ).setMimeType(ContentService.MimeType.JSON);
+
     default:
       return ContentService.createTextOutput(
         JSON.stringify({ status: "error", message: "Invalid action specified" })
@@ -91,3 +101,43 @@ function createTicket(email, type, dueDate, fileUrl, description) {
   sheet.appendRow([ticketID, email, type, dueDate, fileUrl, description, "Pending"]);
   return { status: "success", message: "Ticket created successfully" };
 }
+
+function updateTicket(data) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("tickets");
+  const rows = sheet.getDataRange().getValues();
+
+  for (let i = 1; i < rows.length; i++) {
+    if (rows[i][0] == data.id) {
+      const today = new Date();
+      const dueDate = new Date(rows[i][3]);
+
+      // Check if the ticket is editable (5 days before due date)
+      if ((dueDate - today) / (1000 * 60 * 60 * 24) <= 5) {
+        sheet.getRange(i + 1, 3).setValue(data.dueDate); // Update Due Date
+        sheet.getRange(i + 1, 4).setValue(data.fileUrl); // Update File URL
+        sheet.getRange(i + 1, 5).setValue(data.description); // Update Description
+
+        return { status: "success", message: "Ticket updated successfully." };
+      } else {
+        return { status: "error", message: "Ticket cannot be updated within 5 days of due date." };
+      }
+    }
+  }
+
+  return { status: "error", message: "Ticket ID not found." };
+}
+
+function deleteTicket(id) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("tickets");
+  const rows = sheet.getDataRange().getValues();
+
+  for (let i = 1; i < rows.length; i++) {
+    if (rows[i][0] == id) {
+      sheet.deleteRow(i + 1);
+      return { status: "success", message: "Ticket deleted successfully." };
+    }
+  }
+
+  return { status: "error", message: "Ticket ID not found." };
+}
+
