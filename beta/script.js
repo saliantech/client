@@ -50,7 +50,7 @@ async function createTicket(event) {
     }
 
     // API call
-    const response = await fetch("https://script.google.com/macros/s/AKfycbwSWYsHeE9Q1rxjRnhSQp152IDEO3VWlCmKD3tNY38JMPqDvLjWTxEfn2031M9-ZyceuA/exec", {
+    const response = await fetch("https://script.google.com/macros/s/AKfycbxwRZXWdAzvek7P5EXzlStmD52vijPxxUgLmlmo2zpIh8vsRRgqElvvIs7m4R4tGosd/exec", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -82,7 +82,7 @@ async function createTicket(event) {
 
 async function fetchTickets() {
   try {
-    const response = await fetch("https://script.google.com/macros/s/AKfycbwSWYsHeE9Q1rxjRnhSQp152IDEO3VWlCmKD3tNY38JMPqDvLjWTxEfn2031M9-ZyceuA/exec", {
+    const response = await fetch("https://script.google.com/macros/s/AKfycbxwRZXWdAzvek7P5EXzlStmD52vijPxxUgLmlmo2zpIh8vsRRgqElvvIs7m4R4tGosd/exec", {
       method: "POST",
       body: JSON.stringify({
         action: "fetchTickets",
@@ -210,7 +210,7 @@ async function updateTicket(event) {
 
   try {
     const response = await fetch(
-      "https://script.google.com/macros/s/AKfycbwSWYsHeE9Q1rxjRnhSQp152IDEO3VWlCmKD3tNY38JMPqDvLjWTxEfn2031M9-ZyceuA/exec",
+      "https://script.google.com/macros/s/AKfycbxwRZXWdAzvek7P5EXzlStmD52vijPxxUgLmlmo2zpIh8vsRRgqElvvIs7m4R4tGosd/exec",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -244,7 +244,7 @@ async function deleteTicket(id) {
 
   try {
     const response = await fetch(
-      "https://script.google.com/macros/s/AKfycbwSWYsHeE9Q1rxjRnhSQp152IDEO3VWlCmKD3tNY38JMPqDvLjWTxEfn2031M9-ZyceuA/exec",
+      "https://script.google.com/macros/s/AKfycbxwRZXWdAzvek7P5EXzlStmD52vijPxxUgLmlmo2zpIh8vsRRgqElvvIs7m4R4tGosd/exec",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
