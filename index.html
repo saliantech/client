@@ -180,6 +180,7 @@
       if (result.success) {
         localStorage.setItem("email", data.email);
         alert("Login successful");
+        window.location.href = "test.html";
         loadTickets();
       } else {
         alert("Invalid credentials");
