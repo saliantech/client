@@ -39,6 +39,7 @@ function closeAddTicketPopup() {
           </td>
         </tr>`)
       .join("");
+    hideLoading();
   } else {
     alert("Failed to load tickets");
   }
@@ -51,13 +52,12 @@ async function deleteTicket(id) {
       const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(data) });
       alert(await res.text());
       loadTickets();
-  hideLoading();
     }
 
 async function addTicket(event) {
   // Prevent the form from submitting and reloading the page
   event.preventDefault();
-
+showLoading();
   // Get form field values
   const type = document.getElementById("type").value.trim();
   const dueDate = document.getElementById("dueDate").value.trim();
@@ -121,7 +121,7 @@ async function addTicket(event) {
 //-----------------------
 async function updateTicket(event) {
   event.preventDefault(); // Prevent form submission
-
+showLoading();
   const id = document.getElementById("editTicketId").value;
   const type_of_edit = document.getElementById("editType").value.trim();
   const due_date = document.getElementById("editDueDate").value.trim();
