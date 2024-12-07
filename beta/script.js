@@ -184,10 +184,10 @@ function closeEditModal() {
   document.getElementById("editTicketModal").style.display = "none";
 }
 function showLoading() {
-  document.getElementById("loading").style.display = "block";
-}
+                loading.style.display = "flex";
+            }
 
-function hideLoading() {
-  document.getElementById("loading").style.display = "none";
-}
+            function hideLoading() {
+                loading.style.display = "none";
+            }
 
