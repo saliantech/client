@@ -88,7 +88,6 @@ td[data-status="open"] {
   color: transparent;
 }
 
-
 td[data-status="accepted"] {
   color: #4caf50; /* Green for Accepted */
   font-weight: bold;
@@ -104,6 +103,7 @@ td[data-status="rejected"] {
   font-weight: bold;
 }
 /* Blinking animation */
+
 @keyframes blink {
   0%, 100% {
     opacity: 1;
@@ -115,11 +115,11 @@ td[data-status="rejected"] {
   }
 }
 
-.blinking {
+.blink-red {
   animation: blink 1s infinite;
-  font-weight: bold;
   color: red; /* Initial red color */
 }
+
 #loading {
                 position: fixed;
                 top: 0;
@@ -145,13 +145,36 @@ td[data-status="rejected"] {
                 0% { transform: rotate(0deg); }
                 100% { transform: rotate(360deg); }
                     }
+  
+  /* Popup message style */
+.popup-msg {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    background-color: #8A2BE2;
+    color: white;
+    border-radius: 5px;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 9999;
+}
+
+/* Fade in effect */
+.popup-msg.show {
+    display: block;
+    opacity: 50%;
+}
+  
   </style>
 </head>
 <body>
 <div id="loading">
 <div></div>
 </div>
-
+<div class="popup-msg" id="popupMsg"></div>
 <!-- Side Navigation -->
 <nav class="w3-sidebar w3-bar-block w3-collapse w3-white w3-animate-left w3-card" style="z-index:3;width:320px;" id="mySidebar">
   <a href="javascript:void(0)" class="w3-bar-item w3-button w3-border-bottom w3-large"><img src="https://www.w3schools.com/images/w3schools.png" style="width:60%;"></a>
@@ -187,8 +210,8 @@ td[data-status="rejected"] {
     </form>
   </div>
 </div>
-    
-  <div id="id02" class="w3-modal" style="z-index:4">
+  
+    <div id="id02" class="w3-modal" style="z-index:4">
   <div class="w3-modal-content w3-animate-zoom">
     <div class="w3-container w3-padding w3-red">
        <span onclick="document.getElementById('id02').style.display='none'"
@@ -231,8 +254,15 @@ td[data-status="rejected"] {
 <!-- Page content -->
 <div class="w3-main" style="margin-left:320px;">
 <i class="fa fa-bars w3-button w3-white w3-hide-large w3-xlarge w3-margin-left w3-margin-top" onclick="w3_open()"></i>
- <a href="javascript:void(0)" class="w3-hide-large w3-red w3-button w3-right w3-margin-top w3-margin-right" onclick="document.getElementById('id01').style.display='block'"><i class="fa fa-pencil"></i></a>
- <a href="javascript:void(0)" class="w3-hide-large w3-red w3-button w3-right w3-margin-top w3-margin-right" onclick="document.getElementById('id02').style.display='block'"><i class="fa fa-user"></i></a>
+<a href="javascript:void(0)" class="w3-red w3-button w3-right w3-margin-top w3-margin-right" onclick="document.getElementById('id01').style.display='block'">
+  <i class="fa fa-pencil"></i>
+</a>
+<a href="javascript:void(0)" class="w3-red w3-button w3-right w3-margin-top w3-margin-right" onclick="document.getElementById('id02').style.display='block'">
+  <i class="fa fa-user"></i>
+</a>
+<a href="javascript:void(0)" class="w3-red w3-button w3-right w3-margin-top w3-margin-right" onclick="loadTickets()">
+  <i class="fa fa-refresh"></i>
+</a>
 <div id="Borge" class="w3-container person">
       <h1>Hello, <span id="user-name"></span></h1>
   <div class="tab-pane fade show active" id="tickets">
@@ -244,7 +274,6 @@ td[data-status="rejected"] {
       <th>ID</th>
       <th>Type</th>
       <th>Due Date</th>
-      <th>Description</th>
       <th>Status</th>
       <th>Actions</th>
     </tr>
