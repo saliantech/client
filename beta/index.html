@@ -133,7 +133,7 @@ td[data-status="rejected"] {
   <a href="javascript:void(0)" class="w3-bar-item w3-button w3-dark-grey w3-button w3-hover-black w3-left-align" onclick="document.getElementById('id01').style.display='block'">Add Ticket<i class="w3-padding fa fa-pencil"></i></a>
    <a href="#" class="w3-bar-item w3-button"><i class="fa fa-paper-plane w3-margin-right"></i>Sent</a>
   <a href="#" class="w3-bar-item w3-button"><i class="fa fa-hourglass-end w3-margin-right"></i>Drafts</a>
-  <a href="./test.html" class="w3-bar-item w3-button"><i class="fa fa-trash w3-margin-right"></i>Back</a>
+  <a href="main.html" class="w3-bar-item w3-button"><i class="fa fa-trash w3-margin-right"></i>Back</a>
 </nav>
 <!-- Modal for "New Message" -->
 <div id="id01" class="w3-modal" style="z-index:4">
@@ -144,7 +144,7 @@ td[data-status="rejected"] {
       </span>
       <h2>New Ticket</h2>
     </div>
-    <form id="ticketForm" onsubmit="return createTicket(event)">
+    <form id="ticketForm" onsubmit="addTicket(event)">
       <div class="w3-panel">
         <input type="text" id="type" class="w3-input w3-border w3-margin-bottom" placeholder="Type of Edit" required>
         <input type="date" id="dueDate" class="w3-input w3-border w3-margin-bottom" required>
@@ -174,9 +174,8 @@ td[data-status="rejected"] {
     </div>
   </div>
 </div>
-
-<!-- Edit Modal -->
-<div id="editModal" class="w3-modal" style="z-index:4">
+<!-- Edit Ticket Modal -->
+<div id="editTicketModal" class="w3-modal" style="z-index:4">
   <div class="w3-modal-content w3-animate-zoom">
     <div class="w3-container w3-padding w3-blue">
       <span onclick="closeEditModal()" class="w3-button w3-blue w3-right w3-xxlarge">
@@ -184,11 +183,12 @@ td[data-status="rejected"] {
       </span>
       <h2>Edit Ticket</h2>
     </div>
-    <form id="editTicketForm" onsubmit="return updateTicket(event)">
+    <form id="editTicketForm" onsubmit="updateTicket(event)">
       <div class="w3-panel">
         <input type="hidden" id="editTicketId">
         <input type="text" id="editType" class="w3-input w3-border w3-margin-bottom" placeholder="Type of Edit" required>
-        <input type="date" id="editDueDate" class="w3-input w3-border w3-margin-bottom" required disabled>
+        <input type="date" id="editDueDate" class="w3-input w3-border w3-margin-bottom" required>
+        <input type="url" id="editFilesUrl" class="w3-input w3-border w3-margin-bottom" placeholder="Files URL" required>
         <textarea id="editDescription" class="w3-input w3-border w3-margin-bottom" style="height:150px" placeholder="Description" required></textarea>
         <div class="w3-section">
           <button type="button" class="w3-button w3-blue" onclick="closeEditModal()">Cancel</button>
