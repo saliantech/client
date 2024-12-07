@@ -19,6 +19,7 @@ function closeAddTicketPopup() {
     }
 
  async function loadTickets() {
+  showLoading();
   const data = { action: "getTickets", email: localStorage.getItem("email") };
   const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(data) });
   const result = await res.json();
@@ -26,31 +27,55 @@ function closeAddTicketPopup() {
   if (result.success) {
     const tableBody = document.getElementById("ticketTable");
     tableBody.innerHTML = result.tickets
-      .map(ticket => `
-        <tr>
-          <td>${ticket[0]}</td>
-          <td>${ticket[2]}</td>
-          <td>${ticket[3]}</td>
-          <td>${ticket[5]}</td>
-          <td>${ticket[6]}</td>
-          <td>
-            <button class="btn btn-primary" onclick="openEditModal('${ticket[0]}', '${ticket[2]}', '${ticket[3]}', '${ticket[4]}', '${ticket[5]}')">Edit</button>
-            <button class="btn btn-danger" onclick="deleteTicket(${ticket[0]})">Delete</button>
-          </td>
-        </tr>`)
+      .map(ticket => {
+        const dueDate = new Date(ticket[3]); // Convert to Date object
+        const today = new Date(); // Current date
+        const timeDifference = dueDate - today; // Time difference in milliseconds
+        const daysRemaining = Math.ceil(timeDifference / (1000 * 60 * 60 * 24)); // Convert to days
+
+        // Format date as DD-MMM-YY
+        const formattedDate = dueDate.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "2-digit"
+        }).replace(/ /g, "-");
+
+        // Determine the style based on expiration status
+        let dateStyle = "";
+        let blinkClass = "";
+
+        if (daysRemaining < 0) {
+          // Expired (date is in the past)
+          dateStyle = "color: red; font-weight: bold;";
+        } else if (daysRemaining <= 5) {
+          // Near expiration (5 days or less)
+          blinkClass = "blink-red";
+        }
+
+        return `
+          <tr>
+            <td>${ticket[0]}</td>
+            <td>${ticket[2]}</td>
+            <td style="${dateStyle}" class="${blinkClass}">${formattedDate}</td>
+            <td>${ticket[6]}</td>
+            <td>
+              <button class="btn btn-primary" onclick="openEditModal('${ticket[0]}', '${ticket[2]}', '${ticket[3]}', '${ticket[4]}', '${ticket[5]}')">Edit</button>
+              <button class="btn btn-danger" onclick="deleteTicket(${ticket[0]})">Delete</button>
+            </td>
+          </tr>`;
+      })
       .join("");
     hideLoading();
   } else {
-    alert("Failed to load tickets");
+    showPopupMessage("Failed to load tickets");
   }
 }
-
 
 async function deleteTicket(id) {
   showLoading();
       const data = { action: "deleteTicket", id };
       const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(data) });
-      alert(await res.text());
+      showPopupMessage(await res.text());
       loadTickets();
     }
 
@@ -66,14 +91,14 @@ showLoading();
 
   // Validate inputs
   if (!type || !dueDate || !fileUrl || !description) {
-    alert("All fields are required. Please fill in the missing fields.");
+    showPopupMessage("All fields are required. Please fill in the missing fields.");
     return false;
   }
 
   // Validate URL format
   const urlRegex = /^(http|https):\/\/[^ "]+$/;
   if (!urlRegex.test(fileUrl)) {
-    alert("Please provide a valid URL for the file link.");
+    showPopupMessage("Please provide a valid URL for the file link.");
     return false;
   }
 
@@ -81,7 +106,7 @@ showLoading();
     // Get user email from localStorage
     const email = localStorage.getItem("email");
     if (!email) {
-      alert("User email is missing. Please log in again.");
+      showPopupMessage("User email is missing. Please log in again.");
       return false;
     }
 
@@ -107,15 +132,15 @@ showLoading();
 
     // Handle server response
     if (result.success) {
-      alert("Ticket added successfully!");
+      showPopupMessage("Ticket added successfully!");
       document.getElementById('id01').style.display = 'none'; // Close popup
       loadTickets(); // Refresh ticket list
     } else {
-      alert("Failed to add ticket: " + (result.error || "Unknown error"));
+      showPopupMessage("Failed to add ticket: " + (result.error || "Unknown error"));
     }
   } catch (error) {
     console.error("Error adding ticket:", error);
-    alert("An unexpected error occurred. Please try again later.");
+    showPopupMessage("An unexpected error occurred. Please try again later.");
   }
 }
 //-----------------------
@@ -130,14 +155,14 @@ showLoading();
 
   // Validate inputs
   if (!type_of_edit || !due_date || !files_url || !description) {
-    alert("All fields are required. Please fill in the missing fields.");
+    showPopupMessage("All fields are required. Please fill in the missing fields.");
     return false;
   }
 
   // Validate URL format
   const urlRegex = /^(http|https):\/\/[^ "]+$/;
   if (!urlRegex.test(files_url)) {
-    alert("Please provide a valid URL for the file link.");
+    showPopupMessage("Please provide a valid URL for the file link.");
     return false;
   }
 
@@ -155,15 +180,16 @@ showLoading();
     const result = await res.json();
 
     if (result.success) {
-      alert("Ticket updated successfully");
+        showLoading();
+      showPopupMessage("Ticket updated successfully");
       loadTickets(); // Reload tickets
       closeEditModal(); // Close modal after success
     } else {
-      alert("Error updating ticket");
+      showPopupMessage("Error updating ticket");
     }
   } catch (error) {
     console.error("Error updating ticket:", error);
-    alert("An unexpected error occurred. Please try again later.");
+    showPopupMessage("An unexpected error occurred. Please try again later.");
   }
 }
 
@@ -187,7 +213,18 @@ function showLoading() {
                 loading.style.display = "flex";
             }
 
-            function hideLoading() {
+function hideLoading() {
                 loading.style.display = "none";
             }
 
+function showPopupMessage(message) {
+    popupMsg.textContent = message;
+    popupMsg.classList.add('show');
+
+    // Hide after 3 seconds
+    setTimeout(() => {
+        popupMsg.classList.remove('show');
+    }, 3000);
+    }
+
+//---------
