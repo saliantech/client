@@ -46,10 +46,12 @@ function closeAddTicketPopup() {
 
 
 async function deleteTicket(id) {
+  showLoading();
       const data = { action: "deleteTicket", id };
       const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(data) });
       alert(await res.text());
       loadTickets();
+  hideLoading();
     }
 
 async function addTicket(event) {
