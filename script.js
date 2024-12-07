@@ -8,6 +8,21 @@ function closeAddTicketPopup() {
   document.getElementById("ticketModal").style.display = "none";
 }
 
+ // Display user info or intro
+    const username = localStorage.getItem("username");
+const email = localStorage.getItem("email");
+
+if (username && email) {
+  document.getElementById("usernameDisplay").textContent = username;
+  document.getElementById("user-name").textContent = username;
+  document.getElementById("user-email").textContent = email;
+  document.getElementById("emailDisplay").textContent = email;
+
+  // Ensure loadTickets is called after setting the data
+  loadTickets();
+}
+
+
  async function loadTickets() {
   showLoading();
   const data = { action: "getTickets", email: localStorage.getItem("email") };
