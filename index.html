@@ -170,34 +170,22 @@
     }
 
     async function login() {
-  showLoading();
-  const loginButton = document.querySelector("button[onclick='login()']");
-  disableButton(loginButton, true);
-
-  const data = {
-    action: "login",
-    email: document.getElementById("loginEmail").value,
-    password: document.getElementById("loginPassword").value,
-  };
-
-  try {
-    const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(data) });
-    const result = await res.json();
-
-    if (result.success) {
-      localStorage.setItem("email", data.email);
-      showPopupMessage("Login successful!");
-      window.location.href = "test.html";
-    } else {
-      showPopupMessage("Invalid credentials");
+      const data = {
+        action: "login",
+        email: document.getElementById("loginEmail").value,
+        password: document.getElementById("loginPassword").value,
+      };
+      const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(data) });
+      const result = await res.json();
+      if (result.success) {
+        localStorage.setItem("email", data.email);
+        showPopupMessage("Login successful");
+        window.location.href = "test.html";
+        loadTickets();
+      } else {
+        showPopupMessage("Invalid credentials");
+      }
     }
-  } catch (error) {
-    showPopupMessage("An error occurred during login.");
-  } finally {
-    hideLoading();
-    disableButton(loginButton, false);
-  }
-}
  function showPopupMessage(message) {
     popupMsg.textContent = message;
     popupMsg.classList.add('show');
