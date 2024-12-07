@@ -181,3 +181,11 @@ function closeEditModal() {
   // Close the modal by hiding it
   document.getElementById("editTicketModal").style.display = "none";
 }
+function showLoading() {
+  document.getElementById("loading").style.display = "block";
+}
+
+function hideLoading() {
+  document.getElementById("loading").style.display = "none";
+}
+
