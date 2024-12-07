@@ -1,7 +1,4 @@
-function logout() {
-  alert("Logged out successfully!");
-  // Redirect to login page or implement logout logic
-}
+const API_URL = "https://script.google.com/macros/s/AKfycbwQo6nKeB6X6m7GwgcmqpynLhFlNxoohKx3y6j2oPBIKaYGK64nYLCWSc26SBn1EKMw/exec";
 
 function openAddTicketPopup() {
   document.getElementById("ticketModal").style.display = "block";
@@ -10,19 +7,86 @@ function openAddTicketPopup() {
 function closeAddTicketPopup() {
   document.getElementById("ticketModal").style.display = "none";
 }
-   // Display user info or intro
-    const username = localStorage.getItem("username");
-    const email = localStorage.getItem("email");
-    if (username && email) {
-      document.getElementById("usernameDisplay").textContent = `${username}`;
-      document.getElementById("user-name").textContent = `${username}`;
-       document.getElementById("user-email").textContent = `${email}`;
-     document.getElementById("emailDisplay").textContent = `${email}`;
-   fetchTickets();
-    }
-async function createTicket(event) {
-  event.preventDefault(); // Prevent form submission refresh
 
+ async function loadTickets() {
+  showLoading();
+  const data = { action: "getTickets", email: localStorage.getItem("email") };
+  const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(data) });
+  const result = await res.json();
+
+  if (result.success) {
+    const tableBody = document.getElementById("ticketTable");
+    tableBody.innerHTML = result.tickets
+      .map(ticket => {
+        const dueDate = new Date(ticket[3]); // Convert to Date object
+        const today = new Date(); // Current date
+        const timeDifference = dueDate - today; // Time difference in milliseconds
+        const daysRemaining = Math.ceil(timeDifference / (1000 * 60 * 60 * 24)); // Convert to days
+
+        // Format date as DD-MMM-YY
+        const formattedDate = dueDate.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "2-digit"
+        }).replace(/ /g, "-");
+
+        // Determine the style based on expiration status
+        let dateStyle = "";
+        let blinkClass = "";
+
+        if (daysRemaining < 0) {
+          // Expired (date is in the past)
+          dateStyle = "color: red; font-weight: bold;";
+            editButton = `<button class="btn btn-warning" onclick="NonEdit()"> 
+            <i class="fa fa-pencil fa-sm"></i>
+                        </button>`;
+        } else if (daysRemaining <= 5) {
+          // Near expiration (5 days or less)
+          blinkClass = "blink-red";
+            editButton = `<button class="btn btn-warning" onclick="NonEdit()"> 
+            <i class="fa fa-pencil fa-sm"></i>
+                        </button>`;
+        }
+          else if (daysRemaining >= 5) {
+          // Near expiration (5 days or less)
+            editButton = `<button class="btn btn-primary" onclick="openEditModal('${ticket[0]}', '${ticket[2]}', '${ticket[3]}', '${ticket[4]}', '${ticket[5]}')">
+                          <i class="fa fa-pencil fa-sm"></i>
+                        </button>`;
+        }
+
+        return `
+          <tr>
+            <td>${ticket[0]}</td>
+            <td>${ticket[2]}</td>
+            <td style="${dateStyle}" class="${blinkClass}">${formattedDate}</td>
+            <td>${ticket[6]}</td>
+            <td>
+${editButton}
+<button class="btn btn-danger" onclick="deleteTicket(${ticket[0]})">
+  <i class="fa fa-trash fa-sm"></i>
+</button>
+</td>
+          </tr>`;
+      })
+      .join("");
+    hideLoading();
+  } else {
+    showPopupMessage("Failed to load tickets");
+  }
+}
+
+async function deleteTicket(id) {
+  showLoading();
+      const data = { action: "deleteTicket", id };
+      const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(data) });
+      showPopupMessage(await res.text());
+      loadTickets();
+    }
+
+async function addTicket(event) {
+  // Prevent the form from submitting and reloading the page
+  event.preventDefault();
+showLoading();
   // Get form field values
   const type = document.getElementById("type").value.trim();
   const dueDate = document.getElementById("dueDate").value.trim();
@@ -31,222 +95,155 @@ async function createTicket(event) {
 
   // Validate inputs
   if (!type || !dueDate || !fileUrl || !description) {
-    alert("All fields are required. Please fill in the missing fields.");
+    showPopupMessage("All fields are required. Please fill in the missing fields.");
     return false;
   }
 
   // Validate URL format
   const urlRegex = /^(http|https):\/\/[^ "]+$/;
   if (!urlRegex.test(fileUrl)) {
-    alert("Please provide a valid URL for the file link.");
+    showPopupMessage("Please provide a valid URL for the file link.");
     return false;
   }
 
   try {
-    const email = localStorage.getItem("email"); // Get user email from localStorage
+    // Get user email from localStorage
+    const email = localStorage.getItem("email");
     if (!email) {
-      alert("User email is missing. Please log in again.");
+      showPopupMessage("User email is missing. Please log in again.");
       return false;
     }
 
-    // API call
-    const response = await fetch("https://script.google.com/macros/s/AKfycbwSWYsHeE9Q1rxjRnhSQp152IDEO3VWlCmKD3tNY38JMPqDvLjWTxEfn2031M9-ZyceuA/exec", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "createTicket",
-        email,
-        type,
-        dueDate,
-        fileUrl,
-        description,
-      }),
-    });
+    // Create the ticket data object
+    const data = {
+      action: "addTicket",
+      email,
+      type_of_edit: type,
+      due_date: dueDate,
+      files_url: fileUrl,
+      description,
+    };
 
-    const result = await response.json();
+    // Send ticket data to the server
+    const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(data) });
 
-    if (result.status === "success") {
-      alert("Ticket created successfully!");
-      document.getElementById("ticketForm").reset(); // Reset the form
-      document.getElementById("id01").style.display = "none"; // Close the modal
+    // Check if the response is valid
+    if (!res.ok) {
+      throw new Error(`HTTP error! Status: ${res.status}`);
+    }
+
+    const result = await res.json(); // Parse response as JSON
+
+    // Handle server response
+    if (result.success) {
+      showPopupMessage("Ticket added successfully!");
+      document.getElementById('id01').style.display = 'none'; // Close popup
+      loadTickets(); // Refresh ticket list
     } else {
-      alert(`Failed to create ticket: ${result.message}`);
+      showPopupMessage("Failed to add ticket: " + (result.error || "Unknown error"));
     }
   } catch (error) {
-    console.error("Error creating ticket:", error);
-    alert("An error occurred while creating the ticket. Please try again.");
-  }
-
-  return false; // Prevent default form submission
-}
-
-async function fetchTickets() {
-  try {
-    const response = await fetch("https://script.google.com/macros/s/AKfycbwSWYsHeE9Q1rxjRnhSQp152IDEO3VWlCmKD3tNY38JMPqDvLjWTxEfn2031M9-ZyceuA/exec", {
-      method: "POST",
-      body: JSON.stringify({
-        action: "fetchTickets",
-        email
-      }),
-    });
-
-    const result = await response.json();
-    const tableBody = document.getElementById("ticketTable");
-    tableBody.innerHTML = ""; // Clear table rows before appending new ones
-
-    result.tickets.forEach(ticket => {
-      const formattedDate = formatDate(ticket[3]); // Format the date
-      const isBlinking = isDateNearExpiry(ticket[3]); // Check if near expiry
-      const isEditable = isEditableDueDate(ticket[3]); // Check if due date is editable
-
-      const row = `<tr>
-        <td>${ticket[0]}</td>
-        <td>${ticket[2]}</td>
-        <td class="${isBlinking ? "blinking" : ""}">${formattedDate}</td>
-        <td>${ticket[5]}</td>
-        <td data-status="${ticket[6].toLowerCase()}">${ticket[6]}</td>
-        <td>
-          <button class="btn btn-warning" onclick="openEditModal('${ticket[0]}', '${ticket[2]}', '${ticket[3]}', '${ticket[5]}', ${isEditable})">
-            <i class="fa fa-edit"></i>
-          </button>
-          <button class="btn btn-danger" onclick="deleteTicket('${ticket[0]}')">
-            <i class="fa fa-trash"></i>
-          </button>
-        </td>
-      </tr>`;
-      tableBody.insertAdjacentHTML("beforeend", row);
-    });
-  } catch (error) {
-    console.error("Error fetching tickets:", error);
+    console.error("Error adding ticket:", error);
+    showPopupMessage("An unexpected error occurred. Please try again later.");
   }
 }
-
-// Utility Functions
-
-// Format date to a readable format
-function formatDate(dateString) {
-  const options = { year: "numeric", month: "long", day: "numeric" };
-  return new Date(dateString).toLocaleDateString(undefined, options);
-}
-
-// Check if the due date is near expiry (less than 3 days away)
-function isDateNearExpiry(dueDate) {
-  const currentDate = new Date();
-  const targetDate = new Date(dueDate);
-  const diffDays = Math.ceil((targetDate - currentDate) / (1000 * 60 * 60 * 24));
-  return diffDays <= 3;
-}
-
-// Check if the due date allows editing (5+ days remaining)
-function isEditableDueDate(dueDate) {
-  const currentDate = new Date();
-  const targetDate = new Date(dueDate);
-  const diffDays = Math.ceil((targetDate - currentDate) / (1000 * 60 * 60 * 24));
-  return diffDays >= 5;
-}
-
-function formatDate(dateString) {
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const date = new Date(dateString);
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = months[date.getMonth()];
-  const year = date.getFullYear();
-  return `${day}-${month}-${year}`;
-}
-function isDateNearExpiry(dateString) {
-  const today = new Date();
-  const dueDate = new Date(dateString);
-  const timeDifference = dueDate - today; // Time difference in milliseconds
-  const daysDifference = timeDifference / (1000 * 60 * 60 * 24); // Convert to days
-  return daysDifference <= 2 && daysDifference >= 0; // Check if within 2 days
-}
-// Function to determine the CSS class based on status
-function getStatusClass(status) {
-  switch (status.toLowerCase()) {
-    case "pending":
-      return "status-pending";
-    case "accepted":
-      return "status-accepted";
-    case "on process":
-      return "status-on-process";
-    case "rejected":
-      return "status-rejected";
-    default:
-      return ""; // Default class for unknown status
-  }
-}
-
-function openEditModal(id, type, dueDate, description, isEditable) {
-  document.getElementById("editTicketId").value = id;
-  document.getElementById("editType").value = type;
-  document.getElementById("editDueDate").value = dueDate;
-  document.getElementById("editDescription").value = description;
-
-  document.getElementById("editType").disabled = !isEditable;
-  document.getElementById("editDescription").disabled = !isEditable;
-
-  if (!isEditable) {
-    alert("This ticket cannot be edited as it is less than 5 days before the due date.");
-  }
-
-  document.getElementById("editModal").style.display = "block";
-}
-
-function closeEditModal() {
-  document.getElementById("editModal").style.display = "none";
-}
-
+//-----------------------
 async function updateTicket(event) {
-  event.preventDefault();
-
+  event.preventDefault(); // Prevent form submission
+showLoading();
   const id = document.getElementById("editTicketId").value;
-  const type = document.getElementById("editType").value.trim();
+  const type_of_edit = document.getElementById("editType").value.trim();
+  const due_date = document.getElementById("editDueDate").value.trim();
+  const files_url = document.getElementById("editFilesUrl").value.trim();
   const description = document.getElementById("editDescription").value.trim();
 
-  if (!type || !description) {
-    alert("Please fill in all fields.");
+  // Validate inputs
+  if (!type_of_edit || !due_date || !files_url || !description) {
+    showPopupMessage("All fields are required. Please fill in the missing fields.");
     return false;
   }
 
-  try {
-    const response = await fetch("https://script.google.com/macros/s/AKfycbwSWYsHeE9Q1rxjRnhSQp152IDEO3VWlCmKD3tNY38JMPqDvLjWTxEfn2031M9-ZyceuA/exec", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "updateTicket", id, type, description }),
-    });
+  // Validate URL format
+  const urlRegex = /^(http|https):\/\/[^ "]+$/;
+  if (!urlRegex.test(files_url)) {
+    showPopupMessage("Please provide a valid URL for the file link.");
+    return false;
+  }
 
-    const result = await response.json();
-    if (result.status === "success") {
-      alert("Ticket updated successfully!");
-      closeEditModal();
-      fetchTickets(); // Refresh table
+  const data = {
+    action: "updateTicket",
+    id,
+    type_of_edit,
+    due_date,
+    files_url,
+    description
+  };
+
+  try {
+    const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(data) });
+    const result = await res.json();
+
+    if (result.success) {
+        showLoading();
+      showPopupMessage("Ticket updated successfully");
+      loadTickets(); // Reload tickets
+      closeEditModal(); // Close modal after success
     } else {
-      alert(`Failed to update ticket: ${result.message}`);
+      showPopupMessage("Error updating ticket");
     }
   } catch (error) {
     console.error("Error updating ticket:", error);
-    alert("An error occurred while updating the ticket.");
+    showPopupMessage("An unexpected error occurred. Please try again later.");
   }
 }
-async function deleteTicket(id) {
-  if (!confirm("Are you sure you want to delete this ticket?")) return;
 
-  try {
-    const response = await fetch("https://script.google.com/macros/s/AKfycbwSWYsHeE9Q1rxjRnhSQp152IDEO3VWlCmKD3tNY38JMPqDvLjWTxEfn2031M9-ZyceuA/exec", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "deleteTicket", id }),
-    });
+function openEditModal(id, type, dueDate, fileUrl, description) {
+  // Set values in the modal inputs
+  document.getElementById("editTicketId").value = id;
+  document.getElementById("editType").value = type;
+  document.getElementById("editDueDate").value = dueDate;
+  document.getElementById("editFilesUrl").value = fileUrl;
+  document.getElementById("editDescription").value = description;
 
-    const result = await response.json();
-    if (result.status === "success") {
-      alert("Ticket deleted successfully!");
-      fetchTickets(); // Refresh table
-    } else {
-      alert(`Failed to delete ticket: ${result.message}`);
+  // Display the modal
+  document.getElementById("editTicketModal").style.display = "block";
+}
+
+function closeEditModal() {
+  // Close the modal by hiding it
+  document.getElementById("editTicketModal").style.display = "none";
+}
+function showLoading() {
+                loading.style.display = "flex";
+            }
+
+function hideLoading() {
+                loading.style.display = "none";
+            }
+
+function showPopupMessage(message) {
+    popupMsg.textContent = message;
+    popupMsg.classList.add('show');
+
+    // Hide after 3 seconds
+    setTimeout(() => {
+        popupMsg.classList.remove('show');
+    }, 3000);
     }
-  } catch (error) {
-    console.error("Error deleting ticket:", error);
-    alert("An error occurred while deleting the ticket.");
-  }
+
+//---------
+function logout() {
+  // Clear the stored user data from localStorage
+  localStorage.removeItem('email');
+  
+  // Optionally, clear any other session-related data if needed
+  // localStorage.removeItem('otherKey'); // Example for other session data
+  
+  // Redirect the user back to the login page
+  window.location.href = "index.html"; // Change to your login page URL
+}
+
+function NonEdit() {
+    
+  showPopupMessage("no")
 }
