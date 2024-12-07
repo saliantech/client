@@ -34,7 +34,7 @@ function closeAddTicketPopup() {
           <td>${ticket[5]}</td>
           <td>${ticket[6]}</td>
           <td>
-            <button class="btn btn-primary" onclick="openEditModal('${ticket[0]}', '${ticket[2]}', '${ticket[3]}', '${ticket[5]}')">Edit</button>
+            <button class="btn btn-primary" onclick="openEditModal('${ticket[0]}', '${ticket[2]}', '${ticket[3]}', '${ticket[4]}', '${ticket[5]}')">Edit</button>
             <button class="btn btn-danger" onclick="deleteTicket(${ticket[0]})">Delete</button>
           </td>
         </tr>`)
