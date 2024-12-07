@@ -12,7 +12,7 @@ html,body,h1,h2,h3,h4,h5 {font-family: "RobotoDraft", "Roboto", sans-serif}
 .w3-bar-block .w3-bar-item {padding: 16px}
     /* Style for the truncated text */
   td {
-      max-width: 100px;
+      max-width: 125px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -88,7 +88,6 @@ td[data-status="open"] {
   color: transparent;
 }
 
-
 td[data-status="accepted"] {
   color: #4caf50; /* Green for Accepted */
   font-weight: bold;
@@ -104,6 +103,7 @@ td[data-status="rejected"] {
   font-weight: bold;
 }
 /* Blinking animation */
+
 @keyframes blink {
   0%, 100% {
     opacity: 1;
@@ -115,16 +115,66 @@ td[data-status="rejected"] {
   }
 }
 
-.blinking {
+.blink-red {
   animation: blink 1s infinite;
-  font-weight: bold;
   color: red; /* Initial red color */
 }
 
+#loading {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                display: none;
+            }
+            #loading div {
+                border: 4px solid #f3f3f3;
+                border-top: 3px solid #8A2BE2;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                animation: spin 1s linear infinite;
+            }
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+                    }
+  
+  /* Popup message style */
+.popup-msg {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    background-color: #8A2BE2;
+    color: white;
+    border-radius: 5px;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 9999;
+}
+
+/* Fade in effect */
+.popup-msg.show {
+    display: block;
+    opacity: 50%;
+}
+  
   </style>
 </head>
 <body>
-
+<div id="loading">
+<div></div>
+</div>
+<div class="popup-msg" id="popupMsg"></div>
 <!-- Side Navigation -->
 <nav class="w3-sidebar w3-bar-block w3-collapse w3-white w3-animate-left w3-card" style="z-index:3;width:320px;" id="mySidebar">
   <a href="javascript:void(0)" class="w3-bar-item w3-button w3-border-bottom w3-large"><img src="https://www.w3schools.com/images/w3schools.png" style="width:60%;"></a>
@@ -132,19 +182,19 @@ td[data-status="rejected"] {
   class="w3-bar-item w3-button w3-hide-large w3-large">Close <i class="fa fa-remove"></i></a>
   <a href="javascript:void(0)" class="w3-bar-item w3-button w3-dark-grey w3-button w3-hover-black w3-left-align" onclick="document.getElementById('id01').style.display='block'">Add Ticket<i class="w3-padding fa fa-pencil"></i></a>
    <a href="#" class="w3-bar-item w3-button"><i class="fa fa-paper-plane w3-margin-right"></i>Sent</a>
-  <a href="beta/index.html" class="w3-bar-item w3-button"><i class="fa fa-hourglass-end w3-margin-right"></i>Beta</a>
+  <a href="#" class="w3-bar-item w3-button"><i class="fa fa-hourglass-end w3-margin-right"></i>Drafts</a>
   <a href="main.html" class="w3-bar-item w3-button"><i class="fa fa-trash w3-margin-right"></i>Back</a>
 </nav>
 <!-- Modal for "New Message" -->
 <div id="id01" class="w3-modal" style="z-index:4">
   <div class="w3-modal-content w3-animate-zoom">
-    <div class="w3-container w3-padding w3-red">
-      <span onclick="document.getElementById('id01').style.display='none'" class="w3-button w3-red w3-right w3-xxlarge">
+    <div class="w3-container w3-padding w3-purple">
+      <span onclick="document.getElementById('id01').style.display='none'" class="w3-button w3-purple w3-right w3-xxlarge">
         <i class="fa fa-remove"></i>
       </span>
       <h2>New Ticket</h2>
     </div>
-    <form id="ticketForm" onsubmit="return createTicket(event)">
+    <form id="ticketForm" onsubmit="addTicket(event)">
       <div class="w3-panel">
         <input type="text" id="type" class="w3-input w3-border w3-margin-bottom" placeholder="Type of Edit" required>
         <input type="date" id="dueDate" class="w3-input w3-border w3-margin-bottom" required>
@@ -154,24 +204,55 @@ td[data-status="rejected"] {
           <button type="button" class="w3-button w3-red" onclick="document.getElementById('id01').style.display='none'">
             Cancel <i class="fa fa-remove"></i>
           </button>
-          <button type="submit" class="w3-button w3-light-grey w3-right">Add</button>
+          <button type="submit" class="w3-button w3-purple w3-right">Add</button>
         </div>
       </div>
     </form>
   </div>
 </div>
-    
-  <div id="id02" class="w3-modal" style="z-index:4">
+  
+    <div id="id02" class="w3-modal" style="z-index:4">
   <div class="w3-modal-content w3-animate-zoom">
-    <div class="w3-container w3-padding w3-red">
+    <div class="w3-container w3-padding w3-purple">
        <span onclick="document.getElementById('id02').style.display='none'"
-       class="w3-button w3-red w3-right w3-xxlarge"><i class="fa fa-remove"></i></span>
+       class="w3-button w3-purple w3-right w3-xxlarge"><i class="fa fa-remove"></i></span>
       <h2>Profile</h2>
     </div>
+    <form>
+      <div class="w3-panel">
       <h3>Client Name: <span id="usernameDisplay"></span></h3>
       <h3>Email: <span id="user-email"></span></h3>
- </div>    
+      <a href="javascript:void(0)" class="w3-purple w3-button w3-right w3-margin-top w3-margin-right" onclick="logout()">
+  <i class="fa fa-sign-out"></i>
+      </a>
+ </div>
+      </form>
     </div>
+  </div>
+</div>
+</div>
+<!-- Edit Ticket Modal -->
+<div id="editTicketModal" class="w3-modal" style="z-index:4">
+  <div class="w3-modal-content w3-animate-zoom">
+    <div class="w3-container w3-padding w3-blue">
+      <span onclick="closeEditModal()" class="w3-button w3-blue w3-right w3-xxlarge">
+        <i class="fa fa-remove"></i>
+      </span>
+      <h2>Edit Ticket</h2>
+    </div>
+    <form id="editTicketForm" onsubmit="updateTicket(event)">
+      <div class="w3-panel">
+        <input type="hidden" id="editTicketId">
+        <input type="text" id="editType" class="w3-input w3-border w3-margin-bottom" placeholder="Type of Edit" required>
+        <input type="date" id="editDueDate" class="w3-input w3-border w3-margin-bottom" required>
+        <input type="url" id="editFilesUrl" class="w3-input w3-border w3-margin-bottom" placeholder="Files URL" required>
+        <textarea id="editDescription" class="w3-input w3-border w3-margin-bottom" style="height:150px" placeholder="Description" required></textarea>
+        <div class="w3-section">
+          <button type="button" class="w3-button w3-blue" onclick="closeEditModal()">Cancel</button>
+          <button type="submit" class="w3-button w3-light-grey w3-right">Update</button>
+        </div>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -180,28 +261,54 @@ td[data-status="rejected"] {
 <!-- Page content -->
 <div class="w3-main" style="margin-left:320px;">
 <i class="fa fa-bars w3-button w3-white w3-hide-large w3-xlarge w3-margin-left w3-margin-top" onclick="w3_open()"></i>
- <a href="javascript:void(0)" class="w3-hide-large w3-red w3-button w3-right w3-margin-top w3-margin-right" onclick="document.getElementById('id01').style.display='block'"><i class="fa fa-pencil"></i></a>
- <a href="javascript:void(0)" class="w3-hide-large w3-red w3-button w3-right w3-margin-top w3-margin-right" onclick="document.getElementById('id02').style.display='block'"><i class="fa fa-user"></i></a>
+<a href="javascript:void(0)" class="w3-purple w3-button w3-right w3-margin-top w3-margin-right" onclick="document.getElementById('id02').style.display='block'">
+  <i class="fa fa-user"></i>
+</a>
 <div id="Borge" class="w3-container person">
       <h1>Hello, <span id="user-name"></span></h1>
   <div class="tab-pane fade show active" id="tickets">
                <h3>Your Tickets</h3>
-    <p>Email: <span id="emailDisplay"></span></p>
+    <p>Email: <span id="emailDisplay"></span>
+ <a href="javascript:void(0)" class="w3-purple w3-button w3-round-large w3-right w3-margin-top w3-margin-right" onclick="document.getElementById('id01').style.display='block'">
+  <i class="fa fa-pencil"></i>
+</a>
+<a href="javascript:void(0)" class="w3-purple w3-button w3-round-large w3-right w3-margin-top w3-margin-right" onclick="loadTickets()">
+  <i class="fa fa-refresh"></i>
+</a>
+    </p>
         <table class="table table-container table-bordered">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Type</th>
-            <th>Due Date</th>
-            <th>Discription</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="ticketTable"></tbody>
-    </table>
-    
-</div></div>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Type</th>
+      <th>Due Date</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="ticketTable"></tbody>
+</table>
+  </div>
+</div>
 <script>
+  window.onload = function() {
+  // Check if the user is logged in by checking if email is in localStorage
+  if (!localStorage.getItem('email')) {
+    // If no email is found in localStorage, redirect to login page
+    window.location.href = "index.html"; // Change to your login page URL
+  }
+}
+// Display user info or intro
+    const username = localStorage.getItem("username");
+    const email = localStorage.getItem("email");
+    if (username && email) {
+      document.getElementById("usernameDisplay").textContent = `${username}`;
+      document.getElementById("user-name").textContent = `${username}`;
+       document.getElementById("user-email").textContent = `${email}`;
+     document.getElementById("emailDisplay").textContent = `${email}`;
+   loadTickets();
+    }
+  
 var openInbox = document.getElementById("myBtn");
 openInbox.click();
 
