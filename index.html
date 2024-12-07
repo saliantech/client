@@ -38,7 +38,7 @@
                 0% { transform: rotate(0deg); }
                 100% { transform: rotate(360deg); }
             }
-      /* Popup message style */
+/* Popup message style */
 .popup-msg {
     position: absolute;
     top: 20px;
@@ -67,7 +67,7 @@
         <div id="loading">
             <div></div>
         </div>
-
+<div class="popup-msg" id="popupMsg"></div>
         <div class="login">
             <div class="login__content">
                 <div class="login__img">
@@ -75,8 +75,7 @@
                 </div>
 
                 <div class="login__forms">
-                  <div class="popup-msg" id="popupMsg"></div>
-                    <form class="login__registre" id="login-in">
+                  <form class="login__registre" id="login-in">
                         <h1 class="login__title">Sign In</h1>
                           <div class="login__box">
                             <i class='bx bx-at login__icon'></i>
@@ -158,6 +157,16 @@
     <script>
       const API_URL = "https://script.google.com/macros/s/AKfycbwQo6nKeB6X6m7GwgcmqpynLhFlNxoohKx3y6j2oPBIKaYGK64nYLCWSc26SBn1EKMw/exec";
 
+// Check if the user is already logged in by checking localStorage
+window.onload = function() {
+  const storedEmail = localStorage.getItem('email');
+  if (storedEmail) {
+    // Redirect to main page if email is found in localStorage
+    window.location.href = "test.html"; // Change to your main page URL
+  }
+};
+
+
     async function register() {
       const data = {
         action: "register",
@@ -166,7 +175,8 @@
         password: document.getElementById("password").value,
       };
       const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(data) });
-      alert(await res.text());
+      showPopupMessage(await res.text());
+      log_in();
     }
 
     async function login() {
