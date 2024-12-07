@@ -60,6 +60,32 @@
     opacity: 50%;
 }
 
+#loading {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                display: none;
+            }
+            #loading div {
+                border: 4px solid #f3f3f3;
+                border-top: 3px solid #8A2BE2;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                animation: spin 1s linear infinite;
+            }
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+                    }
+  
         </style>
     </head>
     <body>
@@ -100,17 +126,17 @@
     
                         <div class="login__box">
                             <i class='bx bx-user login__icon'></i>
-                            <input type="text" id="username" placeholder="Username" class="login__input">
+                            <input type="text" id="r_username" placeholder="Username" class="login__input">
                         </div>
     
                         <div class="login__box">
                             <i class='bx bx-at login__icon'></i>
-                            <input type="email" id="email" placeholder="Email" class="login__input">
+                            <input type="email" id="r_email" placeholder="Email" class="login__input">
                         </div>
 
                         <div class="login__box">
                             <i class='bx bx-lock-alt login__icon'></i>
-                            <input type="password" id="password" placeholder="Password" class="login__input">
+                            <input type="password" id="r_password" placeholder="Password" class="login__input">
                         </div>
 
                         <a onclick="register()" class="login__button">Sign Up</a>
@@ -160,7 +186,8 @@
 // Check if the user is already logged in by checking localStorage
 window.onload = function() {
   const storedEmail = localStorage.getItem('email');
-  if (storedEmail) {
+  const storedUsername = localStorage.getItem('username');
+  if (storedEmail && storedUsername) {
     // Redirect to main page if email is found in localStorage
     window.location.href = "test.html"; // Change to your main page URL
   }
@@ -168,14 +195,16 @@ window.onload = function() {
 
 
     async function register() {
+        showLoading();
       const data = {
         action: "register",
-        username: document.getElementById("username").value,
-        email: document.getElementById("email").value,
-        password: document.getElementById("password").value,
+        username: document.getElementById("r_username").value,
+        email: document.getElementById("r_email").value,
+        password: document.getElementById("r_password").value,
       };
       const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(data) });
       showPopupMessage(await res.text());
+      hideLoading();
       log_in();
     }
 
@@ -189,13 +218,15 @@ window.onload = function() {
       const result = await res.json();
       if (result.success) {
         localStorage.setItem("email", data.email);
-        showPopupMessage("Login successful");
+        localStorage.setItem("username", data.username);
+        alert("Login successful");
         window.location.href = "test.html";
         loadTickets();
       } else {
-        showPopupMessage("Invalid credentials");
+        alert("Invalid credentials");
       }
     }
+
  function showPopupMessage(message) {
     popupMsg.textContent = message;
     popupMsg.classList.add('show');
@@ -205,6 +236,14 @@ window.onload = function() {
         popupMsg.classList.remove('show');
     }, 3000);
     }
+
+    function showLoading() {
+                loading.style.display = "flex";
+            }
+
+function hideLoading() {
+                loading.style.display = "none";
+            }
     </script>
     </body>
 </html>
