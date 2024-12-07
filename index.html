@@ -198,6 +198,15 @@
     disableButton(loginButton, false);
   }
 }
+ function showPopupMessage(message) {
+    popupMsg.textContent = message;
+    popupMsg.classList.add('show');
+
+    // Hide after 3 seconds
+    setTimeout(() => {
+        popupMsg.classList.remove('show');
+    }, 3000);
+    }
     </script>
     </body>
 </html>
