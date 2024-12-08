@@ -85,7 +85,8 @@
                 0% { transform: rotate(0deg); }
                 100% { transform: rotate(360deg); }
                     }
-  
+ 
+
         </style>
     </head>
     <body>
@@ -122,22 +123,20 @@
                     </form>
                     <form action="" class="login__create none" id="login-up">
                         <h1 class="login__title">Create Account</h1>
-    
-                        <div class="login__box">
+                      <div id="tooltip-message" style="background-color: #ffdddd; color: red; font-size: 14px; margin-bottom: 10px; border: 1px solid red; border-radius: 4px; display: none;"></div>
+                      <div class="login__box">
                             <i class='bx bx-user login__icon'></i>
                             <input type="text" id="r_username" placeholder="Username" class="login__input">
                         </div>
-    
-                        <div class="login__box">
+                      <div class="login__box">
                             <i class='bx bx-at login__icon'></i>
                             <input type="email" id="r_email" placeholder="Email" class="login__input">
                         </div>
-
                         <div class="login__box">
                             <i class='bx bx-lock-alt login__icon'></i>
                             <input type="password" id="r_password" placeholder="Password" class="login__input">
                         </div>
-
+                    
                         <a onclick="register()" class="login__button">Sign Up</a>
 
                         <div>
@@ -186,4 +185,4 @@
         <!--===== MAIN JS =====-->
         <script src="login.js"></script>
     </body>
-</html>
+</html
