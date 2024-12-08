@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbxvzZhTlXLie-AZxQodz9r0qIonuhurYa-WSkeWV4Qe0mBPiW1mCJW7EYk-VBwrhEDyWw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzq26e3QS4XQqFgqjJjIm7qU6k0YymCv0IXgCo5rmpErhOQs0MCCGq7Fib3qoubGYM9lA/exec";
 
 function openAddTicketPopup() {
   document.getElementById("ticketModal").style.display = "block";
