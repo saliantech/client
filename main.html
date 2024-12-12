@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Main Page</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link href='https://fonts.googleapis.com/css?family=RobotoDraft' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"><style>
+html,body,h1,h2,h3,h4,h5 {font-family: "RobotoDraft", "Roboto", sans-serif}
+.w3-bar-block .w3-bar-item {padding: 16px}
+    /* Style for the truncated text */
+  td {
+      max-width: 125px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    /* Style for expanded text */
+    td.expanded {
+      white-space: normal;
+      overflow: visible;
+    }
+  tr:nth-child(even) {background-color: #f2f2f2;}
+  
+/* Table container with rounded edges */
+.table-container {
+  overflow: hidden; /* Ensures rounded corners apply to all content */
+  border-radius: 12px; /* Adjust for the desired roundness */
+  border: 1px solid #ddd; /* Subtle border for the table */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional shadow for elegance */
+  background-color: #fff; /* Background color for better contrast */
+}
+
+/* Table styling */
+.table-container table {
+  width: 100%;
+  border-collapse: collapse; /* Prevents double borders */
+}
+
+/* Header row styling */
+.table-container th {
+  background-color: #0056b3; /* Professional heading color (blue) */
+  color: #ffffff; /* White text for contrast */
+  font-weight: 600; /* Slightly bold font */
+  padding: 12px 15px;
+  text-align: left;
+  text-transform: uppercase; /* Optional: Makes the header text uppercase */
+}
+
+/* Data cell styling */
+.table-container td {
+  padding: 10px 15px;
+  border-bottom: 1px solid #ddd; /* Subtle separator for rows */
+  color: #333; /* Darker text for readability */
+}
+
+/* Alternating row colors for readability */
+.table-container tr:nth-child(even) {
+  background-color: #f9f9f9; /* Light gray for even rows */
+}
+
+/* Row hover effect */
+.table-container tr:hover {
+  background-color: #f1f5f9; /* Slightly darker hover effect */
+  transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+/* Optional: Style for the first column */
+.table-container td:first-child {
+  font-weight: 500; /* Slightly bold */
+  color: #0056b3; /* Matches the header color */
+}
+/* Styling based on data-status attribute */
+/* Change "Open" to "Pending" visually */
+td[data-status="open"]::before {
+  content: "Pending";
+  color: #ff9800; /* Orange for Pending */
+  font-weight: bold;
+}
+
+/* Hide the original text */
+td[data-status="open"] {
+  color: transparent;
+}
+
+td[data-status="accepted"] {
+  color: #4caf50; /* Green for Accepted */
+  font-weight: bold;
+}
+
+td[data-status="on process"] {
+  color: #2196f3; /* Blue for On Process */
+  font-weight: bold;
+}
+
+td[data-status="rejected"] {
+  color: #f44336; /* Red for Rejected */
+  font-weight: bold;
+}
+/* Blinking animation */
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+    color: red; /* Explicitly set red here */
+  }
+  50% {
+    opacity: 0;
+    color: red; /* Ensure red is retained even when blinking */
+  }
+}
+
+.blink-red {
+  animation: blink 1s infinite;
+  color: red; /* Initial red color */
+}
+
+#loadimg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 5;
+    display: none;
+}
+#loadimg div {
+    position: relative;
+    text-align: center;
+}
+#loadimg img.logo {
+    width: 75px; /* Adjust the size of your logo */
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    z-index: 1;
+}
+#loadimg span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    border: 4px solid transparent;
+    border-top: 4px solid #8A2BE2;
+    border-radius: 50%;
+    z-index: 2;
+    animation: spin 1s linear infinite;
+  }
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+  /* Popup message style */
+.popup-msg {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    background-color: #8A2BE2;
+    color: white;
+    border-radius: 5px;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 9999;
+}
+
+/* Fade in effect */
+.popup-msg.show {
+    display: block;
+    opacity: 50%;
+}
+  .highlight {
+      font-weight: 700;
+      color: #7851a9;
+    }
+.pass-word {
+  cursor: pointer;
+  position: relative;
+}
+
+/* Default hidden state */
+.pass-word::before {
+  content: "****"; /* Display masked password */
+  letter-spacing: 3px;
+  font-family: "Courier New", Courier, monospace;
+}
+
+/* Show the actual password on hover */
+.pass-word:hover::before {
+  content: attr(data-password); /* Display the password stored in the data attribute */
+  letter-spacing: normal;
+  font-family: inherit;
+}
+
+  </style>
+</head>
+<body>
+   <!-- Loading effect -->
+      <div id="loadimg">
+    <div>
+        <img src="loading.gif" alt="Logo" class="logo"/>
+        <span></span>
+    </div>
+</div>      
+<div class="popup-msg" id="popupMsg"></div>
+<!-- Side Navigation -->
+<nav class="w3-sidebar w3-bar-block w3-collapse w3-white w3-animate-left w3-card" style="z-index:3;width:320px;" id="mySidebar">
+  <a href="javascript:void(0)" class="w3-bar-item w3-button w3-border-bottom w3-large"><img src="side-bar-logo.jpg" style="width:60%;"></a>
+  <a href="javascript:void(0)" onclick="w3_close()" title="Close Sidemenu" 
+  class="w3-bar-item w3-button w3-hide-large w3-large">Close <i class="fa fa-remove"></i></a>
+   <a href="#" class="w3-bar-item w3-button"><i class="fa fa-paper-plane w3-margin-right"></i>Chat</a>
+  <a href="#" class="w3-bar-item w3-button"><i class="fa fa-hourglass-end w3-margin-right"></i>Drafts</a>
+  <a href="main.html" class="w3-bar-item w3-button"><i class="fa fa-trash w3-margin-right"></i>Back</a>
+</nav>
+<!-- Modal for "New Message" -->
+<div id="id01" class="w3-modal" style="z-index:4">
+  <div class="w3-modal-content w3-round-large w3-animate-zoom">
+    <div class="w3-container w3-round-large w3-padding w3-purple">
+      <span onclick="document.getElementById('id01').style.display='none'" class="w3-button w3-purple w3-right w3-xxlarge">
+        <i class="fa fa-remove"></i>
+      </span>
+      <h2>New Ticket</h2>
+    </div>
+    <form id="ticketForm" onsubmit="addTicket(event)">
+      <div class="w3-panel">
+        <input type="text" id="type" class="w3-input w3-border w3-margin-bottom" placeholder="Type of Edit" required>
+        <input type="date" id="dueDate" class="w3-input w3-border w3-margin-bottom" required>
+        <input type="url" id="fileUrl" class="w3-input w3-border w3-margin-bottom" placeholder="Paste Your File Link" required>
+        <textarea id="description" class="w3-input w3-border w3-margin-bottom" style="height:150px" placeholder="Description" required></textarea>
+        <div class="w3-section">
+          <button type="button" class="w3-button w3-red" onclick="document.getElementById('id01').style.display='none'">
+            Cancel <i class="fa fa-remove"></i>
+          </button>
+          <button type="submit" class="w3-button w3-purple w3-right">Add</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+  
+    <div id="id02" class="w3-modal" style="z-index:4">
+  <div class="w3-modal-content w3-round-large w3-animate-zoom">
+    <div class="w3-container w3-round-large w3-padding w3-purple">
+       <span onclick="document.getElementById('id02').style.display='none'"
+       class="w3-button w3-purple w3-right w3-xxlarge"><i class="fa fa-remove"></i></span>
+      <h2>Profile</h2>
+    </div>
+    <form>
+      <div class="w3-panel">
+      <p><strong>Name:</strong> <span id="userName">Loading...</span></p>
+    <p><strong>Email:</strong> <span id="userEmail">Loading...</span></p>
+    <p>
+  <strong>Password:</strong>
+  <span class="pass-word" id="userPassword"></span>
+</p>
+    <p><strong>Role:</strong> <span id="userRole">Loading...</span></p>
+  <a href="javascript:void(0)" class="w3-purple w3-button w3-right w3-margin-top w3-margin-right" onclick="logout()">
+  <i class="fa fa-sign-out"></i>
+      </a>
+ </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+<!-- Edit Ticket Modal -->
+<div id="editTicketModal" class="w3-modal" style="z-index:4">
+  <div class="w3-modal-content w3-round-large w3-animate-zoom ">
+    <div class="w3-container w3-round-large w3-padding w3-blue">
+      <span onclick="closeEditModal()" class="w3-button w3-blue w3-right w3-xxlarge">
+        <i class="fa fa-remove"></i>
+      </span>
+      <h2>Edit Ticket</h2>
+    </div>
+    <form id="editTicketForm" onsubmit="updateTicket(event)">
+      <div class="w3-panel">
+        <input type="hidden" id="editTicketId">
+        <input type="text" id="editType" class="w3-input w3-border w3-margin-bottom" placeholder="Type of Edit" required>
+        <input type="date" id="editDueDate" class="w3-input w3-border w3-margin-bottom" required>
+        <input type="url" id="editFilesUrl" class="w3-input w3-border w3-margin-bottom" placeholder="Files URL" required>
+        <textarea id="editDescription" class="w3-input w3-border w3-margin-bottom" style="height:150px" placeholder="Description" required></textarea>
+        <div class="w3-section">
+          <button type="button" class="w3-button w3-blue" onclick="closeEditModal()">Cancel</button>
+          <button type="submit" class="w3-button w3-light-grey w3-right">Update</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Overlay effect when opening the side navigation on small screens -->
+<div class="w3-overlay w3-hide-large w3-animate-opacity" onclick="w3_close()" style="cursor:pointer" title="Close Sidemenu" id="myOverlay"></div>
+
+
+  <!-- Page content -->
+  <div class="w3-main" style="margin-left:320px;">
+    <i class="fa fa-bars w3-button w3-white w3-hide-large w3-xlarge w3-margin-left w3-margin-top" onclick="w3_open()"></i>
+    <a href="javascript:void(0)" class="w3-purple w3-button w3-right w3-margin-top w3-margin-right" onclick="document.getElementById('id02').style.display='block'">
+      <i class="fa fa-user"></i>
+    </a>
+    <div id="Borge" class="w3-container person">
+      <h1>Hello,<span class="highlight" id="frontName">Loading...</span></h1>
+      <div class="tab-pane fade show active" id="tickets">
+        <a href="javascript:void(0)" class="w3-purple w3-button w3-round-large w3-right w3-margin-top w3-margin-right" onclick="document.getElementById('id01').style.display='block'">
+            <i class="fa fa-pencil"></i>
+          </a>
+          <a href="javascript:void(0)" class="w3-purple w3-button w3-round-large w3-right w3-margin-top w3-margin-right" onclick="loadTickets()">
+            <i class="fa fa-refresh"></i>
+          </a>        
+        <table class="table table-container table-bordered">
+          <thead><h3>Your Tickets</h3>
+            <tr>
+              <th>ID</th>
+              <th>Type</th>
+              <th>Due Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="ticketTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    // Function to open the sidebar
+    function w3_open() {
+      document.getElementById("mySidebar").style.display = "block";
+      document.getElementById("myOverlay").style.display = "block";
+    }
+
+    // Function to close the sidebar
+    function w3_close() {
+      document.getElementById("mySidebar").style.display = "none";
+      document.getElementById("myOverlay").style.display = "none";
+    }
+
+    // Function to toggle visibility of elements
+    function myFunc(id) {
+      const x = document.getElementById(id);
+      if (x.className.indexOf("w3-show") === -1) {
+        x.className += " w3-show"; 
+        x.previousElementSibling.className += " w3-red";
+      } else { 
+        x.className = x.className.replace(" w3-show", "");
+        x.previousElementSibling.className = x.previousElementSibling.className.replace(" w3-red", "");
+      }
+    }
+
+    // Open the default mail view
+  function openMail(personName, event) {
+  const people = document.getElementsByClassName("person");
+  for (let i = 0; i < people.length; i++) {
+    people[i].style.display = "none";
+  }
+
+  const tabs = document.getElementsByClassName("test");
+  for (let i = 0; i < tabs.length; i++) {
+    tabs[i].className = tabs[i].className.replace(" w3-light-grey", "");
+  }
+
+  document.getElementById(personName).style.display = "block";
+
+  // Ensure event is passed correctly
+  if (event) {
+    event.currentTarget.className += " w3-light-grey";
+  }
+}
+
+
+    // Default opening tab
+    openMail("Borge");
+
+    // Event delegation for toggling expanded/collapsed text
+    const ticketTable = document.getElementById("ticketTable");
+    ticketTable.addEventListener("click", (event) => {
+      const element = event.target;
+
+      if (element.tagName === "TD") {
+        element.classList.toggle("expanded");
+      }
+    });
+
+    // Revert to truncated text when clicking outside
+    document.addEventListener("click", (event) => {
+      document.querySelectorAll("#ticketTable td.expanded").forEach((element) => {
+        if (!element.contains(event.target)) {
+          element.classList.remove("expanded");
+        }
+      });
+    });
+//---------------------
+
+   </script>
+  <script src="script.js"></script>
+</body>
+      </htm
