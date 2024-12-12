@@ -374,4 +374,4 @@ function modifyUserDetails(email, newDetails) {
   .catch(error => {
     console.error('Error in modifyUserDetails:', error);
   });
-  
+}
