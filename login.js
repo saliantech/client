@@ -176,47 +176,25 @@ async function register() {
 }
 
 async function login() {
-    // Get the input values
-    const email = document.getElementById("loginEmail").value.trim();
-    const password = document.getElementById("loginPassword").value.trim();
-
-    // Check if fields are empty
-    if (!email || !password) {
-        showPopupMessage("Please fill in all required fields.");
-        return; // Exit the function
-    }
-
-    showLoading();
-
-    const data = {
+      const data = {
         action: "login",
-        email: email,
-        password: password,
-    };
-
-    try {
-        const res = await fetch(API_URL, {
-            method: "POST",
-            body: JSON.stringify(data),
-            headers: { "Content-Type": "application/json" },
-        });
-
-        const result = await res.json();
-        if (result.success) {
-            localStorage.setItem("email", data.email);
-            localStorage.setItem("passwordResetMessage", "Login Successfully done.");
-            hideLoading();
-            window.location.href = "main.html"; // Redirect to main page
-        } else {
-            hideLoading();
-            showPopupMessage("Invalid credentials. ");
-        }
-    } catch (error) {
-        hideLoading();
-        alert("An error occurred while trying to log in. Please try again.");
-        console.error("Login error:", error);
+        email: document.getElementById("loginEmail").value,
+        password: document.getElementById("loginPassword").value,
+      };
+    showLoading();
+      const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(data) });
+      const result = await res.json();
+      if (result.success) {
+          localStorage.setItem("email", data.email);
+        localStorage.setItem("passwordResetMessage", "Login Successfully done.");
+      // Redirect to login page
+          hideLoading();
+      window.location.href = "index.html";
+      } else {
+          hideLoading();
+        showPopupMessage("Invalid credentials");
+      }
     }
-}
 
  function showPopupMessage(message) {
     popupMsg.textContent = message;
