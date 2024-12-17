@@ -29,6 +29,7 @@ window.onload = async function () {
 
     if (clientData) {
       document.getElementById("userName").textContent = clientData[0]; // Name (column 0)
+      document.getElementById("profileName").textContent = clientData[0]; // Name (column 0)
       document.getElementById("frontName").textContent = clientData[0]; // Name (column 0)
         document.getElementById("userEmail").textContent = clientData[1]; // Email (column 2)
       const userPasswordElement = document.getElementById("userPassword");
@@ -58,9 +59,8 @@ function openAddTicketPopup() {
 function closeAddTicketPopup() {
   document.getElementById("ticketModal").style.display = "none";
 }
-
-
- async function loadTickets() {
+//-------
+async function loadTickets() {
   showLoading();
   const data = { action: "getTickets", email: localStorage.getItem("email") };
   const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(data) });
@@ -68,7 +68,54 @@ function closeAddTicketPopup() {
 
   if (result.success) {
     const tableBody = document.getElementById("ticketTable");
-    tableBody.innerHTML = result.tickets
+    const totalCountElement = document.getElementById("totalTickets");
+    const nearExpireCountElement = document.getElementById("nearExpireTickets");
+    const completedCountElement = document.getElementById("completedTickets");
+    const pendingCountElement = document.getElementById("pendingTickets");
+    const rejectedCountElement = document.getElementById("rejectedTickets");
+
+    const tickets = result.tickets;
+
+    // Calculate counts
+    let nearExpireCount = 0;
+    let completedCount = 0;
+    let pendingCount = 0;
+    let rejectedCount = 0;
+
+    tickets.forEach(ticket => {
+      const dueDate = new Date(ticket[3]);
+      const today = new Date();
+      const timeDifference = dueDate - today;
+      const daysRemaining = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+
+      // Count near expiration tickets (<= 5 days remaining)
+      if (daysRemaining <= 5 && daysRemaining >= 0) {
+        nearExpireCount++;
+      }
+
+      // Count status-based tickets
+      switch (ticket[6].toLowerCase()) {
+        case "completed":
+          completedCount++;
+          break;
+        case "pending":
+          pendingCount++;
+          break;
+        case "rejected":
+          rejectedCount++;
+          break;
+      }
+    });
+
+    // Update overview counts
+    totalCountElement.textContent = tickets.length;
+    nearExpireCountElement.textContent = nearExpireCount;
+    completedCountElement.textContent = completedCount;
+    pendingCountElement.textContent = pendingCount;
+    rejectedCountElement.textContent = rejectedCount;
+
+    // Populate the ticket table
+    tableBody.innerHTML = tickets
       .map(ticket => {
         const dueDate = new Date(ticket[3]); // Convert to Date object
         const today = new Date(); // Current date
@@ -85,25 +132,25 @@ function closeAddTicketPopup() {
         // Determine the style based on expiration status
         let dateStyle = "";
         let blinkClass = "";
+        let editButton = "";
 
         if (daysRemaining < 0) {
           // Expired (date is in the past)
           dateStyle = "color: red; font-weight: bold;";
-            editButton = `<button class="btn btn-warning" onclick="NonEdit()"> 
+          editButton = `<button class="btn btn-warning" onclick="NonEdit()"> 
             <i class="fa fa-pencil fa-sm"></i>
-                        </button>`;
+          </button>`;
         } else if (daysRemaining <= 5) {
           // Near expiration (5 days or less)
           blinkClass = "blink-red";
-            editButton = `<button class="btn btn-warning" onclick="NonEdit()"> 
+          editButton = `<button class="btn btn-warning" onclick="NonEdit()"> 
             <i class="fa fa-pencil fa-sm"></i>
-                        </button>`;
-        }
-          else if (daysRemaining >= 5) {
-          // Near expiration (5 days or less)
-            editButton = `<button class="btn btn-primary" onclick="openEditModal('${ticket[0]}', '${ticket[2]}', '${ticket[3]}', '${ticket[4]}', '${ticket[5]}')">
-                          <i class="fa fa-pencil fa-sm"></i>
-                        </button>`;
+          </button>`;
+        } else {
+          // Not near expiration
+          editButton = `<button class="btn btn-primary" onclick="openEditModal('${ticket[0]}', '${ticket[2]}', '${ticket[3]}', '${ticket[4]}', '${ticket[5]}')">
+            <i class="fa fa-pencil fa-sm"></i>
+          </button>`;
         }
 
         return `
@@ -113,20 +160,44 @@ function closeAddTicketPopup() {
             <td style="${dateStyle}" class="${blinkClass}">${formattedDate}</td>
             <td>${ticket[6]}</td>
             <td>
-${editButton}
-<button class="btn btn-danger" onclick="deleteTicket(${ticket[0]})">
-  <i class="fa fa-trash fa-sm"></i>
-</button>
-</td>
+              ${editButton}
+              <button class="btn btn-danger" onclick="deleteTicket(${ticket[0]})">
+                <i class="fa fa-trash fa-sm"></i>
+              </button>
+            </td>
           </tr>`;
       })
       .join("");
+    hideticketbox();
     hideLoading();
   } else {
     showPopupMessage("Failed to load tickets");
   }
 }
+//---
+function hideticketbox() {
+  // Retrieve count values from the DOM
+  const nearExpireCount = parseInt(document.getElementById("nearExpireTickets").textContent) || 0;
+  const completedCount = parseInt(document.getElementById("completedTickets").textContent) || 0;
+  const pendingCount = parseInt(document.getElementById("pendingTickets").textContent) || 0;
+  const rejectedCount = parseInt(document.getElementById("rejectedTickets").textContent) || 0;
 
+  // Hide ticket boxes based on counts
+  if (completedCount === 0) {
+    document.getElementById("completeTicketBox").style.display = "none";
+  }
+  if (nearExpireCount === 0) {
+    document.getElementById("expirTicketBox").style.display = "none";
+  }
+  if (pendingCount === 0) {
+    document.getElementById("pendingTicketBox").style.display = "none";
+  }
+  if (rejectedCount === 0) {
+    document.getElementById("rejectTicketBox").style.display = "none";
+  }
+}
+
+ //----
 async function deleteTicket(id) {
   showLoading();
       const data = { action: "deleteTicket", id };
@@ -272,6 +343,33 @@ function showLoading() {
 function hideLoading() {
                 loadimg.style.display = "none";
             }
+function mainpageLoad() {
+    overSlide.style.backgroundColor = "";
+    overSlide.style.color = "";
+    mainSlide.style.backgroundColor = "purple";
+    mainSlide.style.color = "white";
+    showLoading();
+    waitSec(hideLoading);
+    mainpage.style.display = "flex";
+    ticketOverview.style.display = "none";
+    w3_close();
+            }
+function overviewLoad() {
+    overSlide.style.backgroundColor = "purple";
+    overSlide.style.color = "white";
+    mainSlide.style.backgroundColor = "";
+    mainSlide.style.color = "";
+    showLoading();
+    hideticketbox();
+    waitSec(hideLoading);
+    mainpage.style.display = "none";
+    ticketOverview.style.display = "flex";
+    w3_close();
+            }
+function waitSec(callback, seconds = 2) {
+  setTimeout(callback, seconds * 1000);
+}
+
 
 function showPopupMessage(message) {
     popupMsg.textContent = message;
@@ -297,4 +395,4 @@ function logout() {
 function NonEdit() {
     
   showPopupMessage("Non Editable, This ticket already expired or near to expire")
-   }
+}
