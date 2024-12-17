@@ -119,6 +119,10 @@ td[data-status="rejected"] {
   animation: blink 1s infinite;
   color: red; /* Initial red color */
 }
+.blink-red-tc {
+  animation: blink 1s infinite;
+  bacground-color: red; /* Initial red color */
+}
 
 #loadimg {
     position: fixed;
@@ -205,6 +209,68 @@ td[data-status="rejected"] {
   font-family: inherit;
 }
 
+.ticket-container {
+  display: flex;
+  flex-wrap: wrap; /* Allows wrapping to the next line */
+  gap: 10px; /* Space between boxes */
+  justify-content: center; /* Centers the boxes */
+}
+
+.ticket-box {
+  background-color: #ffffff; /* White background */
+  border: 1px solid #ddd; /* Subtle border */
+  border-radius: 12px; /* Rounded corners */
+  padding: 20px 30px; /* Extra padding */
+  width: calc(25% - 20px); /* Make space for 4 boxes per row with gap included */
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2); /* Enhanced shadow */
+  transition: transform 0.2s ease-in-out;
+  text-align: center;
+}
+
+@media screen and (max-width: 768px) {
+  .ticket-box {
+    width: calc(50% - 20px); /* Adjust to 2 boxes per row for smaller screens */
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .ticket-box {
+    width: 100%; /* Single column for very small screens */
+  }
+}
+
+
+/* Hover effect */
+.ticket-box:hover {
+  transform: translateY(-5px);
+}
+
+/* Icon styling */
+.ticket-icon {
+  color: #4CAF50; /* Green color */
+  font-size: 48px; /* Larger icon size */
+  margin-right: 20px; /* Spacing */
+}
+
+/* Ticket details styling */
+.ticket-details {
+  text-align: left;
+}
+
+.ticket-details p {
+  margin: 0;
+  font-size: 18px; /* Label font size */
+  color: #555; /* Subtle text color */
+}
+
+.ticket-details span {
+  font-size: 48px; /* Large ticket count font size */
+  font-weight: bold;
+  color: #007BFF; /* Highlighted number color */
+}
+
+  
+
   </style>
 </head>
 <body>
@@ -220,9 +286,9 @@ td[data-status="rejected"] {
 <nav class="w3-sidebar w3-bar-block w3-collapse w3-white w3-animate-left w3-card" style="z-index:3;width:320px;" id="mySidebar">
   <a href="javascript:void(0)" class="w3-bar-item w3-button w3-border-bottom w3-large"><img src="side-bar-logo.jpg" style="width:60%;"></a>
   <a href="javascript:void(0)" onclick="w3_close()" title="Close Sidemenu" 
-  class="w3-bar-item w3-button w3-hide-large w3-large">Close <i class="fa fa-remove"></i></a>
-   <a href="#" class="w3-bar-item w3-button"><i class="fa fa-paper-plane w3-margin-right"></i>Chat</a>
-  <a href="#" class="w3-bar-item w3-button"><i class="fa fa-hourglass-end w3-margin-right"></i>Drafts</a>
+  class="w3-bar-item w3-button w3-hide-large w3-large" style="color:red;">Close <i class="fa fa-remove"></i></a>
+   <a id="overSlide" href="javascript:void(0)" onclick="overviewLoad()" class="w3-bar-item w3-button" style="background-color:purple; color:white;"><i class="fa fa-dashboard w3-margin-right"></i>Overview</a>
+  <a id="mainSlide" href="javascript:void(0)" onclick="mainpageLoad()" class="w3-bar-item w3-button"><i class="fa fa-ticket w3-margin-right"></i>Ticket Table</a>
   <a href="main.html" class="w3-bar-item w3-button"><i class="fa fa-trash w3-margin-right"></i>Back</a>
 </nav>
 <!-- Modal for "New Message" -->
@@ -253,9 +319,9 @@ td[data-status="rejected"] {
   
     <div id="id02" class="w3-modal" style="z-index:4">
   <div class="w3-modal-content w3-round-large w3-animate-zoom">
-    <div class="w3-container w3-round-large w3-padding w3-purple">
+    <div class="w3-container w3-round-large w3-padding w3-blue">
        <span onclick="document.getElementById('id02').style.display='none'"
-       class="w3-button w3-purple w3-right w3-xxlarge"><i class="fa fa-remove"></i></span>
+       class="w3-button w3-blue w3-right w3-xxlarge"><i class="fa fa-remove"></i></span>
       <h2>Profile</h2>
     </div>
     <form>
@@ -267,9 +333,11 @@ td[data-status="rejected"] {
   <span class="pass-word" id="userPassword"></span>
 </p>
     <p><strong>Role:</strong> <span id="userRole">Loading...</span></p>
-  <a href="javascript:void(0)" class="w3-purple w3-button w3-right w3-margin-top w3-margin-right" onclick="logout()">
-  <i class="fa fa-sign-out"></i>
-      </a>
+   <div class="w3-section">
+          <button type="button" class="w3-button w3-red w3-round-large" onclick="logout()">
+            Logout <i class="fa fa-sign-out"></i>
+          </button>
+    </div>
  </div>
       </form>
     </div>
@@ -303,23 +371,63 @@ td[data-status="rejected"] {
 
 <!-- Overlay effect when opening the side navigation on small screens -->
 <div class="w3-overlay w3-hide-large w3-animate-opacity" onclick="w3_close()" style="cursor:pointer" title="Close Sidemenu" id="myOverlay"></div>
-
-
   <!-- Page content -->
   <div class="w3-main" style="margin-left:320px;">
-    <i class="fa fa-bars w3-button w3-white w3-hide-large w3-xlarge w3-margin-left w3-margin-top" onclick="w3_open()"></i>
-    <a href="javascript:void(0)" class="w3-purple w3-button w3-right w3-margin-top w3-margin-right" onclick="document.getElementById('id02').style.display='block'">
-      <i class="fa fa-user"></i>
+  <i class="fa fa-bars w3-button w3-white w3-hide-large w3-xlarge w3-margin-left w3-margin-top" onclick="w3_open()"></i>
+   <a href="javascript:void(0)" class="w3-blue w3-button w3-round-medium w3-right w3-margin-top w3-margin-right" onclick="document.getElementById('id02').style.display='block'">
+      <i class="fa fa-user"> <span id="profileName"></span></i>
     </a>
     <div id="Borge" class="w3-container person">
       <h1>Hello,<span class="highlight" id="frontName">Loading...</span></h1>
-      <div class="tab-pane fade show active" id="tickets">
+
+<div id="ticketOverview" class="ticket-container" style="display:felx;">
+        
+<div id="totalTicketBox"class="ticket-box w3-yellow" onclick="mainpageLoad()">
+<i class="fa fa-ticket fa-lg ticket-icon"></i>
+<div class="ticket-details">
+<p>Total Tickets</p><span id="totalTickets">0</span>
+  </div>
+</div>
+   
+<div id="completeTicketBox"class="ticket-box w3-green">
+<i class="fa fa-ticket fa-lg ticket-icon"></i>
+<div class="ticket-details">
+<p>Completed</p><span id="completedTickets">0</span>
+  </div>
+</div>
+        
+<div id="pendingTicketBox"class="ticket-box w3-gray">
+<i class="fa fa-ticket fa-lg ticket-icon"></i>
+<div class="ticket-details">
+<p>Pending</p><span id="pendingTickets">0</span>
+  </div>
+</div>
+        
+<div id="expirTicketBox"class="ticket-box w3-red blink-red-tc">
+<i class="fa fa-ticket fa-lg ticket-icon"></i>
+<div class="ticket-details">
+<p>Expiring</p><span id="nearExpireTickets">0</span>
+  </div>
+</div>
+             
+<div id="rejectTicketBox"class="ticket-box w3-red">
+<i class="fa fa-ticket fa-lg ticket-icon"></i>
+<div class="ticket-details">
+<p>Rejected</p><span id="rejectedTickets">0</span>
+  </div>
+</div>
+        
+</div>
+      
+      <div id="mainpage" style="display:none;">
+      <div style="width:100%;">
+    <div class="tab-pane fade show active" id="tickets">
         <a href="javascript:void(0)" class="w3-purple w3-button w3-round-large w3-right w3-margin-top w3-margin-right" onclick="document.getElementById('id01').style.display='block'">
-            <i class="fa fa-pencil"></i>
+            <i class="fa fa-plus">New</i>
           </a>
           <a href="javascript:void(0)" class="w3-purple w3-button w3-round-large w3-right w3-margin-top w3-margin-right" onclick="loadTickets()">
-            <i class="fa fa-refresh"></i>
-          </a>        
+            <i class="fa fa-refresh">Reload</i>
+          </a>
         <table class="table table-container table-bordered">
           <thead><h3>Your Tickets</h3>
             <tr>
@@ -332,6 +440,8 @@ td[data-status="rejected"] {
           </thead>
           <tbody id="ticketTable"></tbody>
         </table>
+      </div>
+      </div>
       </div>
     </div>
   </div>
@@ -409,4 +519,4 @@ td[data-status="rejected"] {
    </script>
   <script src="script.js"></script>
 </body>
-      </htm
+</html>
