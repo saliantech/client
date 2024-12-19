@@ -142,37 +142,66 @@ async function register() {
   }
 
   // Show errors if validation fails
-  if (errorMessage) {
+async function register() {
+  showLoading();
+
+  // Input validation
+  const username = document.getElementById("r_username").value;
+  const email = document.getElementById("r_email").value;
+  const password = document.getElementById("r_password").value;
+
+  if (username.length < 4) {
+    showPopupMessage("Username must be at least 4 characters long.");
     hideLoading();
-    showPopupMessage(errorMessage);
     return;
   }
 
-  try {
-    // Make API request
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-
-    const result = await res.text();
-    if (res.ok) {
-      // Success
-      localStorage.setItem("passwordResetMessage", "Registration done successfully! Please login.");
-      window.location.href = "index.html";
-    } else {
-      // API returned an error
-      showPopupMessage(result);
-    }
-  } catch (error) {
-    // Handle network errors
-    showPopupMessage("An error occurred during registration. Please try again later.");
-  } finally {
+  if (!isValidEmail(email)) {
+    showPopupMessage("Please enter a valid email address.");
     hideLoading();
+    return;
   }
+
+  if (password.length < 4) {
+    showPopupMessage("Password must be at least 4 characters long.");
+    hideLoading();
+    return;
+  }
+
+  // If validation passes, proceed with registration
+  const data = {
+    action: "register",
+    username: username,
+    email: email,
+    password: password,
+  };
+
+  const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(data) });
+  const responseText = await res.text();
+
+  // Parse the JSON response
+  const responseJSON = JSON.parse(responseText);
+
+  // Check if there's an error message
+  if (!responseJSON.success) {
+    showPopupMessage(responseJSON.message);
+  } else {
+    // Handle successful registration
+    // ...
+  }
+    hideLoading();
+
+  // Store success message in localStorage for displaying on login page
+  localStorage.setItem("passwordResetMessage", "Registration Done successfully! Please login.");
+
+  // Redirect to login page
+  window.location.href = "index.html";
+}
+
+// Helper function to validate email
+function isValidEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
 }
 
 async function login() {
