@@ -125,11 +125,11 @@ async function register() {
     return;
   }
 
-  if (password.length < 4) {
-    showPopupMessage("Password must be at least 4 characters long.");
-    hideLoading();
-    return;
-  }
+  if (password.length < 4 || !/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/.test(password)) {
+  showPopupMessage("Password must be at least 4 characters long and contain at least one special character.");
+  hideLoading();
+  return;
+}
   // If validation passes, proceed with registration
   const data = {
     action: "register",
