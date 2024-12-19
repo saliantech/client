@@ -148,16 +148,18 @@ async function register() {
   if (!responseJSON.success) {
     showPopupMessage(responseJSON.message);
   } else {
-    // Handle successful registration
-  }
-    hideLoading();
-
+hideLoading();
   // Store success message in localStorage for displaying on login page
   localStorage.setItem("passwordResetMessage", "Registration Done successfully! Please login.");
 
   // Redirect to login page
   window.location.href = "index.html";
+  }
+    hideLoading();
+  // Redirect to login page
+  window.location.href = "#";
 }
+
 
 // Helper function to validate email
 function isValidEmail(email) {
