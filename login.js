@@ -104,43 +104,6 @@ window.onload = async function () {
     alert("Failed to load user details.");
   }
 };
-
-async function register() {
-  showLoading();
-
-  // Collect data
-  const data = {
-    action: "register",
-    username: document.getElementById("r_username").value.trim(),
-    email: document.getElementById("r_email").value.trim(),
-    password: document.getElementById("r_password").value,
-  };
-
-  // Dummy Gmail check: list of blocked dummy emails
-  const blockedEmails = ["test@gmail.com", "dummy@gmail.com", "example@gmail.com"];
-
-  // Validation
-  let errorMessage = "";
-
-  // Validate username (at least 3 characters)
-  if (data.username.length < 3) {
-    errorMessage += "Username must be at least 3 characters long.\n";
-  }
-
-  // Validate email (valid Gmail and not in dummy list)
-  const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
-  if (!emailRegex.test(data.email)) {
-    errorMessage += "Please enter a valid Gmail address.\n";
-  } else if (blockedEmails.includes(data.email.toLowerCase())) {
-    errorMessage += "Please use a valid Gmail account.\n";
-  }
-
-  // Validate password (at least 6 characters, one special character)
-  const passwordRegex = /^(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{6,}$/;
-  if (!passwordRegex.test(data.password)) {
-    errorMessage += "Password must be at least 6 characters long and include at least one special character (!@#$%^&*).\n";
-  }
-
   // Show errors if validation fails
 async function register() {
   showLoading();
@@ -167,7 +130,6 @@ async function register() {
     hideLoading();
     return;
   }
-
   // If validation passes, proceed with registration
   const data = {
     action: "register",
@@ -187,7 +149,6 @@ async function register() {
     showPopupMessage(responseJSON.message);
   } else {
     // Handle successful registration
-    // ...
   }
     hideLoading();
 
@@ -202,7 +163,6 @@ async function register() {
 function isValidEmail(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
-}
 }
 async function login() {
       const data = {
