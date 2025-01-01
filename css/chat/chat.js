@@ -1,0 +1,112 @@
+const apiBaseUrl = "https://script.google.com/macros/s/AKfycbxkyhvNQ4FGVFHybDViMQbNCMM3eqA4wbcQaOGTYp7AnI-uzcl_MrHLDNgNKoj_fKw_/exec";
+let fetchMessagesInterval; // Variable to hold the setInterval ID
+let isFetchingMessagesStopped = false; // Flag to check if fetching is stopped
+
+document.addEventListener("DOMContentLoaded", () => {
+  const senderEmail = localStorage.getItem("email");
+  const recipientEmail = localStorage.getItem("recipientEmail");
+
+  if (!senderEmail || !recipientEmail) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  document.getElementById("sender-email").value = senderEmail;
+  document.getElementById("recipient-email").value = recipientEmail;
+
+  // Display recipient details
+  document.getElementById("recipient-name").textContent = recipientEmail; // Initially set to email
+  document.getElementById("recipient-status").textContent = "Online";
+
+  // Fetch users list to get usernames
+  let users = [];
+  fetch(`${apiBaseUrl}?action=getUsers`)
+    .then(response => response.json())
+    .then(data => {
+      users = data;
+      // Get username for the recipient
+      const recipient = users.find(user => user.email === recipientEmail);
+      if (recipient) {
+        document.getElementById("recipient-name").textContent = recipient.username; // Display username
+      }
+    });
+
+  // Function to fetch and display chat messages
+  function fetchMessages() {
+    if (isFetchingMessagesStopped) return; // Prevent fetching if stopped
+
+    fetch(`${apiBaseUrl}?action=getMessages&sender=${senderEmail}&receiver=${recipientEmail}`)
+      .then(response => response.json())
+      .then(messages => {
+        const chatBox = document.getElementById("chat-box");
+        chatBox.innerHTML = ""; // Clear chat box to avoid duplicates
+        messages.forEach(msg => {
+          const messageItem = document.createElement("div");
+          messageItem.className = msg.sender === senderEmail ? "outgoing" : "incoming";
+
+          const messageText = document.createElement("p");
+          messageText.textContent = msg.message;
+
+          if (msg.sender === senderEmail) {
+            messageItem.innerHTML = `
+              <div class="details">
+                <p><strong>You:</strong> ${msg.message}</p>
+              </div>
+            `;
+          } else {
+            const recipient = users.find(user => user.email === msg.sender);
+            const recipientName = recipient ? recipient.username : msg.sender;
+            messageItem.innerHTML = `
+              <div class="details">
+                <p><strong>${recipientName}:</strong> ${msg.message}</p>
+              </div>
+            `;
+          }
+
+          chatBox.appendChild(messageItem);
+        });
+        // Scroll to the latest message
+        chatBox.scrollTop = chatBox.scrollHeight;
+      })
+      .catch(error => {
+        console.error('Error fetching messages:', error);
+        alert('Error fetching messages. Please try again later.');
+      });
+  }
+
+  // Initial fetch of messages
+  fetchMessages();
+
+  // Periodically fetch messages every second
+  fetchMessagesInterval = setInterval(fetchMessages, 1000);
+
+  // Handle message sending
+  document.getElementById("chat-form").addEventListener("submit", e => {
+    e.preventDefault();
+    if (isFetchingMessagesStopped) return; // Prevent sending if fetching is stopped
+
+    const messageInput = document.getElementById("message-input");
+    const message = messageInput.value.trim();
+    if (message) {
+      fetch(`${apiBaseUrl}?action=sendMessage&sender=${senderEmail}&receiver=${recipientEmail}&message=${message}`)
+        .then(response => response.json())
+        .then(result => {
+          if (result.success) {
+            messageInput.value = ""; // Clear input field after sending
+            fetchMessages(); // Immediately update chat box with new message
+          }
+        })
+        .catch(error => {
+          console.error('Error sending message:', error);
+         });
+    }
+  });
+
+  // Function to stop fetching messages and redirect
+  window.stopsetInterval = function () {
+    clearInterval(fetchMessagesInterval); // Stop the interval
+    isFetchingMessagesStopped = true; // Set the flag to prevent further fetching and sending
+    alert('Fetching messages stopped.');
+    window.location.href = "index.html"; // Redirect to index.html
+  };
+});
