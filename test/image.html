@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Display Images from Google Drive</title>
+  <style>
+    #image-container img {
+      margin: 10px;
+      width: 300px;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Images from Google Drive</h1>
+  <div id="image-container"></div>
+
+  <script>
+    // URL of the data.txt file on GitHub Pages
+    const dataFilePath = "data.txt"; // Since its in the same folder as index.html
+
+    // Container to display images
+    const imageContainer = document.getElementById("image-container");
+
+    // Fetch the URLs from the data file
+    fetch(dataFilePath)
+      .then(response => response.text())
+      .then(data => {
+        // Split the file content into an array of URLs
+        const driveUrls = data.split('\n').filter(url => url.trim() !== '');
+
+        // Process each URL to extract file ID and create image elements
+        driveUrls.forEach(url => {
+          const fileIdMatch = url.match(/\/d\/(.*?)\//);
+          if (fileIdMatch && fileIdMatch[1]) {
+            const fileId = fileIdMatch[1];
+            const imgSrc = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+
+            // Create and append the image element
+            const img = document.createElement("img");
+            img.src = imgSrc;
+            img.alt = "Google Drive Image";
+            img.style.margin = "10px";
+            imageContainer.appendChild(img);
+          }
+        });
+      })
+      .catch(error => console.error('Error loading data file:', error));
+  </script>
+</body>
+</html>
+
+
+<!--<iframe src="https://drive.google.com/embeddedfolderview?id=FOLDER-ID#grid" style="width:100%; height:600px; border:0;"></iframe>
+https://drive.google.com/folderview?id=1_P-FTo8JkTRT1YsvbvPjfqbewqmJZ8LY
+https://drive.google.com/file/d/1_Ubalw7DSLrM4RHaHiepYBCyBdtHVvvR/view?usp=drivesdk
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Drive</title>
+</head>
+<body>
+     <img src="https://drive.google.com/thumbnail?id=0B6wwyazyzml-OGQ3VUo0Z2thdmc&sz=w1000" alt="Page Image">
+    <br>
+</body>
+</html>
+
+https://drive.google.com/file/d/1_Ubalw7DSLrM4RHaHiepYBCyBdtHVvvR/view?usp=drivesdk
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Display Images from Google Drive</title>
+  <style>
+    #image-container img {
+      margin: 10px;
+      width: 300px; /* Adjust image size */
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Images from Google Drive</h1>
+  <div id="image-container"></div>
+
+  <script>
+    // Path to the data.txt file
+    const dataFilePath = "data.txt"; // Ensure it's in the same directory or provide the correct path
+
+    // Container to display images
+    const imageContainer = document.getElementById("image-container");
+
+    // Fetch the URLs from the data file
+    fetch(dataFilePath)
+      .then(response => response.text())
+      .then(data => {
+        // Split the file content into an array of URLs
+        const driveUrls = data.split('\n').filter(url => url.trim() !== '');
+
+        // Process each URL to extract file ID and create image elements
+        driveUrls.forEach(url => {
+          const fileIdMatch = url.match(/\/d\/(.*?)\//);
+          if (fileIdMatch && fileIdMatch[1]) {
+            const fileId = fileIdMatch[1];
+            const imgSrc = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+
+            // Create and append the image element
+            const img = document.createElement("img");
+            img.src = imgSrc;
+            img.alt = "Google Drive Image";
+            img.style.margin = "10px";
+            imageContainer.appendChild(img);
+          }
+        });
+      })
+      .catch(error => console.error('Error loading data file:', error));
+  </script>
+</body>
+</html>
